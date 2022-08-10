@@ -21,7 +21,7 @@ const novastarCardsList = await novastarSerial.findSendingCards();
 const TEST_MODE = Boolean(process.env.TEST_MODE);
 
 interface SendingCard {
-	COM: number,
+	COM: string,
 	DVI: boolean,
 	Port1: boolean,
 	Port2: boolean,
@@ -46,7 +46,7 @@ function getNovastarData(): NovastarRes {
 		if (TEST_MODE) {
 			console.log('no novastar cards detected');
 			novastarRes.SendingCards.push({
-				COM: 5,
+				COM: 'COM1',
 				DVI: true,
 				Port1: false,
 				Port2: true,
@@ -56,6 +56,16 @@ function getNovastarData(): NovastarRes {
 		} else {
 			novastarRes.ErrorDescription = 'no novastar cards detected';
 		}
+	} else {
+		novastarCardsList.forEach((nsCard) => {
+			novastarRes.SendingCards.push({
+				COM: nsCard.path,
+				DVI: false,
+				Port1: false,
+				Port2: false,
+				Error: false,
+			});
+		});
 	}
 	return novastarRes;
 }
