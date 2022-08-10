@@ -1,5 +1,5 @@
 import serial from '@novastar/serial';
-// import codec from '@novastar/codec';
+import codec, { RequestPackage } from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -25,32 +25,33 @@ interface SendingCardData {
 	DVI: boolean | null,
 	Port1: boolean | null,
 	Port2: boolean | null,
-	Error: boolean,
-	ErrorDescription: string,
+	Error: boolean | null,
+	ErrorDescription: string | null,
 }
 
 interface NovastarResult {
-	Error: boolean,
-	ErrorDescription: string,
+	Error: boolean | null,
+	ErrorDescription: string | null,
 	SendingCards: SendingCardData[],
 }
 
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
-		COM: '',
-		DVI: false,
-		Error: false,
-		ErrorDescription: '',
-		Port1: false,
-		Port2: false,
+		COM: null,
+		DVI: null,
+		Error: null,
+		ErrorDescription: null,
+		Port1: null,
+		Port2: null,
 	};
 	try {
 		const session = await nsSerial.open(portPath);
-		// const readReq: any = new codec.Request(1);
-		// readReq.deviceType = codec.DeviceType.ReceivingCard;
-		// readReq.address = 0x02000001;
-		// readReq.port = 0;
-		// const { data: [value] } = await session.connection.send(readReq);
+		const readReq: any = new RequestPackage(1);
+		readReq.deviceType = codec.DeviceType.ReceivingCard;
+		readReq.address = 0x02000001;
+		readReq.port = 0;
+		const { data: [value] } = await session.connection.send(readReq);
+		console.log(value);
 	} catch (e) {
 		res.Error = true;
 		res.ErrorDescription = String(e);
@@ -60,8 +61,8 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 
 async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
 	const novastarRes: NovastarResult = {
-		Error: false,
-		ErrorDescription: '',
+		Error: null,
+		ErrorDescription: null,
 		SendingCards: [],
 	};
 
@@ -85,6 +86,8 @@ async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
 				novastarRes.ErrorDescription = 'no novastar cards detected';
 			}
 		} else {
+			novastarRes.Error = false;
+			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: any): Promise<SendingCardData> => {
 					const localRes = await getNovastarCardData(nsCard.path, nsSerial);
