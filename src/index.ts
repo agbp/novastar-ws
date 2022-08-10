@@ -1,5 +1,5 @@
 import serial from '@novastar/serial';
-import codec from '@novastar/codec';
+// import codec from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -46,11 +46,11 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 	};
 	try {
 		const session = await nsSerial.open(portPath);
-		const readReq: any = new codec.Request(1);
-		readReq.deviceType = codec.DeviceType.ReceivingCard;
-		readReq.address = 0x02000001;
-		readReq.port = 0;
-		const { data: [value] } = await session.connection.send(readReq);
+		// const readReq: any = new codec.Request(1);
+		// readReq.deviceType = codec.DeviceType.ReceivingCard;
+		// readReq.address = 0x02000001;
+		// readReq.port = 0;
+		// const { data: [value] } = await session.connection.send(readReq);
 	} catch (e) {
 		res.Error = true;
 		res.ErrorDescription = String(e);
@@ -96,7 +96,9 @@ async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
 		novastarRes.Error = true;
 		novastarRes.ErrorDescription = String(e);
 	} finally {
-		nsSerial.release();
+		if (nsSerial.sessions.length > 0) {
+			nsSerial.release();
+		}
 	}
 	return novastarRes;
 }
