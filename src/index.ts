@@ -21,10 +21,10 @@ const novastarSerial = serial.default;
 const TEST_MODE = Boolean(process.env.TEST_MODE);
 
 interface SendingCardData {
-	COM: string,
-	DVI: boolean,
-	Port1: boolean,
-	Port2: boolean,
+	COM: string | null,
+	DVI: boolean | null,
+	Port1: boolean | null,
+	Port2: boolean | null,
 	Error: boolean,
 	ErrorDescription: string,
 }
