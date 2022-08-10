@@ -1,5 +1,5 @@
 import serial from '@novastar/serial';
-import codec, { RequestPackage } from '@novastar/codec';
+import codec from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
@@ -46,7 +46,7 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 	};
 	try {
 		const session = await nsSerial.open(portPath);
-		const readReq: any = new RequestPackage(1);
+		const readReq: any = new codec.RequestPackage(1);
 		readReq.deviceType = codec.DeviceType.ReceivingCard;
 		readReq.address = 0x02000001;
 		readReq.port = 0;
