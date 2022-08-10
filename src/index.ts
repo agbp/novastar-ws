@@ -39,13 +39,14 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 	const res: SendingCardData = {
 		COM: null,
 		DVI: null,
-		Error: null,
-		ErrorDescription: null,
 		Port1: null,
 		Port2: null,
+		Error: null,
+		ErrorDescription: null,
 	};
 	try {
 		const session = await nsSerial.open(portPath);
+		res.DVI = await session.hasDVISignalIn();
 		const readReq: any = new codec.RequestPackage(1);
 		readReq.deviceType = codec.DeviceType.ReceivingCard;
 		readReq.address = 0x02000001;
