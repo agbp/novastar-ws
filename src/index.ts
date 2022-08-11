@@ -3,7 +3,7 @@ import codec from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
-import { SerialPort } from 'serialport';
+import SerialPort from 'serialport';
 
 dotenv.config();
 const novastarSerial = serial.default;
@@ -80,7 +80,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 	try {
 		let connection;
 
-		const port = new SerialPort({ path: portPath, baudRate: 115200 }, () => {
+		const port = new SerialPort(portPath, { baudRate: 115200 }, () => {
 			connection = new codec.Connection(port);
 
 			const readReq = new codec.RequestPackage(1);
