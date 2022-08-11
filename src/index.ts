@@ -87,8 +87,9 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 			readReq.deviceType = codec.DeviceType.ReceivingCard;
 			readReq.address = 0x02000001;
 			readReq.port = 0;
-			const { data: [value] } = await connection.send(readReq);
-			console.log(value);
+			connection.send(readReq).then((data) => {
+				console.log(data);
+			});
 		});
 
 
