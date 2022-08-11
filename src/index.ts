@@ -26,7 +26,9 @@ interface SendingCardData {
 	Version: string | null,
 	DVI: boolean | null,
 	Port1: boolean | null,
+	Port1Model: string | null,
 	Port2: boolean | null,
+	Port2Model: string | null,
 	Error: boolean | null,
 	ErrorDescription: string | null,
 }
@@ -79,7 +81,9 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		Version: null,
 		DVI: null,
 		Port1: null,
+		Port1Model: null,
 		Port2: null,
+		Port2Model: null,
 		Error: null,
 		ErrorDescription: null,
 	};
@@ -88,10 +92,10 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		// res.DVI = await session.hasDVISignalIn();
 		// const test = await session.getModel(codec.DeviceType.ReceivingCard);
 		res.DVI = await getDVI(portPath, nsSerial);
-		const test0 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 0);
-		console.log(test0);
-		const test1 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 1);
-		console.log(test1);
+		res.Port1Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 0);
+		res.Port1 = res.Port1Model !== null;
+		res.Port2Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 1);
+		res.Port2 = res.Port1Mode2 !== null;
 		const test2 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 2);
 		console.log(test2);
 		res.Version = await getSendingCardVersion(portPath, nsSerial);
