@@ -88,7 +88,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 			readReq.address = 0x02000001;
 			readReq.port = 0;
 			connection.send(readReq).then((data) => {
-				console.log(data);
+				console.log('data = ', data);
 			});
 		});
 
