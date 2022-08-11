@@ -41,9 +41,9 @@ async function getDVI(portPath: any, nsSerial: any): Promise<boolean> {
 	return session.hasDVISignalIn();
 }
 
-async function getModel(portPath: any, type: any, nsSerial: any): Promise<boolean> {
+async function getModel(portPath: any, type: any, nsSerial: any): Promise<any> {
 	const session = await nsSerial.open(portPath);
-	return session.hasDVISignalIn();
+	return session.getModel(type);
 }
 
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
