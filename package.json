@@ -27,6 +27,7 @@
 		"typescript": "^4.7.4"
 	},
 	"dependencies": {
+		"@novastar/screen": "1.0.5",
 		"@novastar/codec": "1.0.5",
 		"@novastar/serial": "1.0.5",
 		"dotenv": "^16.0.1",
