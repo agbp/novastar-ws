@@ -95,7 +95,7 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		res.Port1Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 0);
 		res.Port1 = res.Port1Model !== null;
 		res.Port2Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 1);
-		res.Port2 = res.Port1Mode2 !== null;
+		res.Port2 = res.Port2Model !== null;
 		const test2 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 2);
 		console.log(test2);
 		res.Version = await getSendingCardVersion(portPath, nsSerial);
@@ -125,7 +125,9 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 		Version: null,
 		DVI: null,
 		Port1: null,
+		Port1Model: null,
 		Port2: null,
+		Port2Model: null,
 		Error: null,
 		ErrorDescription: null,
 	};
@@ -171,7 +173,9 @@ async function getNovastarData(nsSerial: any, alt: boolean = false): Promise<Nov
 					Version: 'some version',
 					DVI: true,
 					Port1: false,
+					Port1Model: null,
 					Port2: true,
+					Port2Model: 'some test model for port2',
 					Error: false,
 					ErrorDescription: '',
 				});
