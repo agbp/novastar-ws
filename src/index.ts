@@ -36,19 +36,31 @@ interface NovastarResult {
 	SendingCards: SendingCardData[],
 }
 
-async function getDVI(portPath: any, nsSerial: any): Promise<boolean> {
-	const session = await nsSerial.open(portPath);
-	return session.hasDVISignalIn();
+async function getDVI(portPath: any, nsSerial: any): Promise<boolean | null> {
+	try {
+		const session = await nsSerial.open(portPath);
+		return session.hasDVISignalIn();
+	} catch (e) {
+		return null;
+	}
 }
 
 async function getModel(portPath: any, type: any, nsSerial: any): Promise<any> {
-	const session = await nsSerial.open(portPath);
-	return session.getModel(type);
+	try {
+		const session = await nsSerial.open(portPath);
+		return session.getModel(type);
+	} catch (e) {
+		return null;
+	}
 }
 
-async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<any> {
-	const session = await nsSerial.open(portPath);
-	return session.getSendingCardVersion();
+async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<string | null> {
+	try {
+		const session = await nsSerial.open(portPath);
+		return session.getSendingCardVersion();
+	} catch (e) {
+		return null;
+	}
 }
 
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
