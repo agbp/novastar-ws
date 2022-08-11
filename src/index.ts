@@ -36,6 +36,16 @@ interface NovastarResult {
 	SendingCards: SendingCardData[],
 }
 
+async function getDVI(portPath: any, nsSerial: any): Promise<boolean> {
+	const session = await nsSerial.open(portPath);
+	return session.hasDVISignalIn();
+}
+
+async function getModel(portPath: any, type: any, nsSerial: any): Promise<boolean> {
+	const session = await nsSerial.open(portPath);
+	return session.hasDVISignalIn();
+}
+
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
@@ -46,9 +56,11 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		ErrorDescription: null,
 	};
 	try {
-		const session = await nsSerial.open(portPath);
-		res.DVI = await session.hasDVISignalIn();
-		const test = await session.getModel(codec.DeviceType.ReceivingCard);
+		// const session = await nsSerial.open(portPath);
+		// res.DVI = await session.hasDVISignalIn();
+		// const test = await session.getModel(codec.DeviceType.ReceivingCard);
+		res.DVI = await getDVI(portPath, nsSerial);
+		const test = await getModel(portPath, codec.DeviceType.ReceivingCard, nsSerial);
 		console.log(test);
 		// const readReq: any = new codec.RequestPackage(1);
 		// readReq.deviceType = codec.DeviceType.ReceivingCard;
