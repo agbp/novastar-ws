@@ -92,7 +92,6 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 			});
 		});
 
-
 		// const { data: [value] } = await session.connection.send(readReq);
 	} catch (e) {
 		res.Error = true;
@@ -101,7 +100,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 	return res;
 }
 
-async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
+async function getNovastarData(nsSerial: any, alt: boolean = false): Promise<NovastarResult> {
 	const novastarRes: NovastarResult = {
 		Error: null,
 		ErrorDescription: null,
@@ -132,7 +131,9 @@ async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: any): Promise<SendingCardData> => {
-					const localRes = await getNovastarCardData2(nsCard.path, nsSerial);
+					const localRes = alt
+						? await getNovastarCardData2(nsCard.path, nsSerial)
+						: await getNovastarCardData(nsCard.path, nsSerial);
 					return localRes;
 				},
 			));
@@ -154,6 +155,10 @@ const app = express();
 app.use(express.json());
 app.get('/', async (req, res) => {
 	const nsRes = await getNovastarData(novastarSerial);
+	return res.status(200).json(nsRes);
+});
+app.get('/test', async (req, res) => {
+	const nsRes = await getNovastarData(novastarSerial, true);
 	return res.status(200).json(nsRes);
 });
 
