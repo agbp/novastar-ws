@@ -82,14 +82,15 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 
 		const port = new SerialPort({ path: portPath, baudRate: 115200 }, () => {
 			connection = new codec.Connection(port);
+
+			const readReq = new codec.RequestPackage(1);
+			readReq.deviceType = codec.DeviceType.ReceivingCard;
+			readReq.address = 0x02000001;
+			readReq.port = 0;
+			const { data: [value] } = await connection.send(readReq);
+			console.log(value);
 		});
 
-		const readReq = new codec.RequestPackage(1);
-		readReq.deviceType = codec.DeviceType.ReceivingCard;
-		readReq.address = 0x02000001;
-		readReq.port = 0;
-		const { data: [value] } = await connection.send(readReq);
-		console.log(value);
 
 		// const { data: [value] } = await session.connection.send(readReq);
 	} catch (e) {
