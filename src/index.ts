@@ -1,8 +1,9 @@
 import serial from '@novastar/serial';
-import codec from '@novastar/codec';
+import codec, { Connection } from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
+import { SerialPort } from 'serialport';
 
 dotenv.config();
 const novastarSerial = serial.default;
@@ -67,6 +68,37 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 	return res;
 }
 
+async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<SendingCardData> {
+	const res: SendingCardData = {
+		COM: null,
+		DVI: null,
+		Port1: null,
+		Port2: null,
+		Error: null,
+		ErrorDescription: null,
+	};
+	try {
+		let connection;
+
+		const port = new SerialPort({ path: portPath, baudRate: 115200 }, () => {
+			connection = new Connection(port);
+		});
+
+		const readReq = new codec.RequestPackage(1);
+		readReq.deviceType = codec.DeviceType.ReceivingCard;
+		readReq.address = 0x02000001;
+		readReq.port = 0;
+		const { data: [value] } = await connection.send(readReq);
+		console.log(value);
+
+		// const { data: [value] } = await session.connection.send(readReq);
+	} catch (e) {
+		res.Error = true;
+		res.ErrorDescription = String(e);
+	}
+	return res;
+}
+
 async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
 	const novastarRes: NovastarResult = {
 		Error: null,
@@ -98,7 +130,7 @@ async function getNovastarData(nsSerial: any): Promise<NovastarResult> {
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: any): Promise<SendingCardData> => {
-					const localRes = await getNovastarCardData(nsCard.path, nsSerial);
+					const localRes = await getNovastarCardData2(nsCard.path, nsSerial);
 					return localRes;
 				},
 			));
