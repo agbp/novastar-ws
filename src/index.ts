@@ -38,7 +38,7 @@ interface NovastarResult {
 
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
-		COM: null,
+		COM: portPath,
 		DVI: null,
 		Port1: null,
 		Port2: null,
