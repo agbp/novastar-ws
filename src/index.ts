@@ -46,6 +46,11 @@ async function getModel(portPath: any, type: any, nsSerial: any): Promise<any> {
 	return session.getModel(type);
 }
 
+async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<any> {
+	const session = await nsSerial.open(portPath);
+	return session.getSendingCardVersion();
+}
+
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
@@ -62,6 +67,8 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		res.DVI = await getDVI(portPath, nsSerial);
 		const test = await getModel(portPath, codec.DeviceType.ReceivingCard, nsSerial);
 		console.log(test);
+		const test2 = await getSendingCardVersion(portPath, nsSerial);
+		console.log(test2);
 		// const readReq: any = new codec.RequestPackage(1);
 		// readReq.deviceType = codec.DeviceType.ReceivingCard;
 		// readReq.address = 0x02000001;
