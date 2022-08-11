@@ -39,7 +39,8 @@ interface NovastarResult {
 async function getDVI(portPath: any, nsSerial: any): Promise<boolean | null> {
 	try {
 		const session = await nsSerial.open(portPath);
-		return session.hasDVISignalIn();
+		const res = await session.hasDVISignalIn();
+		return res;
 	} catch (e) {
 		return null;
 	}
@@ -48,7 +49,8 @@ async function getDVI(portPath: any, nsSerial: any): Promise<boolean | null> {
 async function getModel(portPath: any, type: any, nsSerial: any): Promise<any> {
 	try {
 		const session = await nsSerial.open(portPath);
-		return session.getModel(type);
+		const res = await session.getModel(type);
+		return res;
 	} catch (e) {
 		return null;
 	}
@@ -57,7 +59,8 @@ async function getModel(portPath: any, type: any, nsSerial: any): Promise<any> {
 async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<string | null> {
 	try {
 		const session = await nsSerial.open(portPath);
-		return session.getSendingCardVersion();
+		const res = await session.getSendingCardVersion();
+		return res;
 	} catch (e) {
 		return null;
 	}
