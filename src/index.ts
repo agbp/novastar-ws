@@ -48,18 +48,18 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 	try {
 		const session = await nsSerial.open(portPath);
 		res.DVI = await session.hasDVISignalIn();
-		const readReq: any = new codec.RequestPackage(1);
-		readReq.deviceType = codec.DeviceType.ReceivingCard;
-		readReq.address = 0x02000001;
-		readReq.port = 0;
-		(session.connection.send(readReq) as Promise<any>).then((reqRes: any) => {
-			res.Error = false;
-			res.ErrorDescription = '';
-			console.log(reqRes);
-		}).catch((e: any) => {
-			res.Error = true;
-			res.ErrorDescription = String(e);
-		});
+		// const readReq: any = new codec.RequestPackage(1);
+		// readReq.deviceType = codec.DeviceType.ReceivingCard;
+		// readReq.address = 0x02000001;
+		// readReq.port = 0;
+		// (session.connection.send(readReq) as Promise<any>).then((reqRes: any) => {
+		// 	res.Error = false;
+		// 	res.ErrorDescription = '';
+		// 	console.log(reqRes);
+		// }).catch((e: any) => {
+		// 	res.Error = true;
+		// 	res.ErrorDescription = String(e);
+		// });
 		// const { data: [value] } = await session.connection.send(readReq);
 	} catch (e) {
 		res.Error = true;
