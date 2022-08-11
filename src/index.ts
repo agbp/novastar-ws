@@ -3,7 +3,7 @@ import codec from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
-import SerialPort from 'serialport';
+// import SerialPort from 'serialport';
 
 dotenv.config();
 const novastarSerial = serial.default;
@@ -23,6 +23,7 @@ const TEST_MODE = Boolean(process.env.TEST_MODE);
 
 interface SendingCardData {
 	COM: string | null,
+	Version: string | null,
 	DVI: boolean | null,
 	Port1: boolean | null,
 	Port2: boolean | null,
@@ -46,10 +47,16 @@ async function getDVI(portPath: any, nsSerial: any): Promise<boolean | null> {
 	}
 }
 
-async function getModel(portPath: any, type: any, nsSerial: any): Promise<any> {
+async function getModel(
+	portPath: any,
+	nsSerial: any,
+	type: any,
+	port: number = 0,
+	rcvIndex: number = 0,
+): Promise<any> {
 	try {
 		const session = await nsSerial.open(portPath);
-		const res = await session.getModel(type);
+		const res = await session.getModel(type, port, rcvIndex);
 		return res;
 	} catch (e) {
 		return null;
@@ -69,6 +76,7 @@ async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<stri
 async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
+		Version: null,
 		DVI: null,
 		Port1: null,
 		Port2: null,
@@ -80,10 +88,13 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		// res.DVI = await session.hasDVISignalIn();
 		// const test = await session.getModel(codec.DeviceType.ReceivingCard);
 		res.DVI = await getDVI(portPath, nsSerial);
-		const test2 = await getSendingCardVersion(portPath, nsSerial);
+		const test0 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 0);
+		console.log(test0);
+		const test1 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 1);
+		console.log(test1);
+		const test2 = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 2);
 		console.log(test2);
-		const test = await getModel(portPath, codec.DeviceType.ReceivingCard, nsSerial);
-		console.log(test);
+		res.Version = await getSendingCardVersion(portPath, nsSerial);
 		// const readReq: any = new codec.RequestPackage(1);
 		// readReq.deviceType = codec.DeviceType.ReceivingCard;
 		// readReq.address = 0x02000001;
@@ -107,32 +118,33 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: null,
+		Version: null,
 		DVI: null,
 		Port1: null,
 		Port2: null,
 		Error: null,
 		ErrorDescription: null,
 	};
-	try {
-		let connection;
+	// 	try {
+	// 		let connection;
 
-		const port = new SerialPort(portPath, { baudRate: 115200 }, () => {
-			connection = new codec.Connection(port);
+	// 		const port = new SerialPort(portPath, { baudRate: 115200 }, () => {
+	// 			connection = new codec.Connection(port);
 
-			const readReq = new codec.RequestPackage(1);
-			readReq.deviceType = codec.DeviceType.ReceivingCard;
-			readReq.address = 0x02000001;
-			readReq.port = 0;
-			connection.send(readReq).then((data) => {
-				console.log('data = ', data);
-			});
-		});
+	// 			const readReq = new codec.RequestPackage(1);
+	// 			readReq.deviceType = codec.DeviceType.ReceivingCard;
+	// 			readReq.address = 0x02000001;
+	// 			readReq.port = 0;
+	// 			connection.send(readReq).then((data) => {
+	// 				console.log('data = ', data);
+	// 			});
+	// 		});
 
-		// const { data: [value] } = await session.connection.send(readReq);
-	} catch (e) {
-		res.Error = true;
-		res.ErrorDescription = String(e);
-	}
+	// 		// const { data: [value] } = await session.connection.send(readReq);
+	// 	} catch (e) {
+	// 		res.Error = true;
+	// 		res.ErrorDescription = String(e);
+	// 	}
 	return res;
 }
 
@@ -152,6 +164,7 @@ async function getNovastarData(nsSerial: any, alt: boolean = false): Promise<Nov
 			if (TEST_MODE) {
 				novastarRes.SendingCards.push({
 					COM: 'COM1',
+					Version: 'some version',
 					DVI: true,
 					Port1: false,
 					Port2: true,
