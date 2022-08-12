@@ -3,7 +3,7 @@ import codec from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
-import SerialPort from 'serialport';
+// import SerialPort from 'serialport';
 
 dotenv.config();
 const novastarSerial = serial.default;
@@ -31,6 +31,13 @@ interface SendingCardData {
 	Port2Model: string | null,
 	Error: boolean | null,
 	ErrorDescription: string | null,
+}
+
+interface ShortCardData {
+	Error: 0 | 1,
+	DVI: 0 | 1,
+	Port1: 0 | 1,
+	Port2: 0 | 1,
 }
 
 interface NovastarResult {
@@ -75,7 +82,11 @@ async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<stri
 	}
 }
 
-async function getNovastarCardData(portPath: string, nsSerial: any): Promise<SendingCardData> {
+async function getNovastarCardData(
+	portPath: string,
+	nsSerial: any,
+	query: any = null,
+): Promise<SendingCardData | ShortCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
 		Version: null,
@@ -116,6 +127,15 @@ async function getNovastarCardData(portPath: string, nsSerial: any): Promise<Sen
 		res.Error = true;
 		res.ErrorDescription = String(e);
 	}
+	if (query) {
+		const queryRes: ShortCardData = {
+			Error: 1,
+			DVI: 0,
+			Port1: 0,
+			Port2: 0,
+		};
+		return queryRes;
+	}
 	return res;
 }
 
@@ -131,30 +151,34 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 		Error: null,
 		ErrorDescription: null,
 	};
-	try {
-		let connection;
+	// try {
+	// 	let connection;
 
-		const port = new SerialPort(portPath, { baudRate: 115200 }, () => {
-			connection = new codec.Connection(port);
+	// 	const port = new SerialPort(portPath, { baudRate: 115200 }, () => {
+	// 		connection = new codec.Connection(port);
 
-			const readReq = new codec.RequestPackage(1);
-			readReq.deviceType = codec.DeviceType.ReceivingCard;
-			readReq.address = 0x02000001;
-			readReq.port = 1;
-			connection.send(readReq).then((data) => {
-				console.log('data = ', data);
-			});
-		});
+	// 		const readReq = new codec.RequestPackage(1);
+	// 		readReq.deviceType = codec.DeviceType.ReceivingCard;
+	// 		readReq.address = 0x02000001;
+	// 		readReq.port = 1;
+	// 		connection.send(readReq).then((data) => {
+	// 			console.log('data = ', data);
+	// 		});
+	// 	});
 
-		// const { data: [value] } = await session.connection.send(readReq);
-	} catch (e) {
-		res.Error = true;
-		res.ErrorDescription = String(e);
-	}
+	// 	// const { data: [value] } = await session.connection.send(readReq);
+	// } catch (e) {
+	// 	res.Error = true;
+	// 	res.ErrorDescription = String(e);
+	// }
 	return res;
 }
 
-async function getNovastarData(nsSerial: any, alt: boolean = false): Promise<NovastarResult> {
+async function getNovastarData(
+	nsSerial: any,
+	query: any = null,
+	alt: boolean = false,
+): Promise<NovastarResult | ShortCardData> {
 	const novastarRes: NovastarResult = {
 		Error: null,
 		ErrorDescription: null,
@@ -187,10 +211,10 @@ async function getNovastarData(nsSerial: any, alt: boolean = false): Promise<Nov
 			novastarRes.Error = false;
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
-				async (nsCard: any): Promise<SendingCardData> => {
+				async (nsCard: any): Promise<SendingCardData | ShortCardData> => {
 					const localRes = alt
 						? await getNovastarCardData2(nsCard.path, nsSerial)
-						: await getNovastarCardData(nsCard.path, nsSerial);
+						: await getNovastarCardData(nsCard.path, nsSerial, query);
 					return localRes;
 				},
 			));
@@ -203,6 +227,26 @@ async function getNovastarData(nsSerial: any, alt: boolean = false): Promise<Nov
 			nsSerial.release();
 		}
 	}
+	if (query && query.Port) {
+		const shortRes: ShortCardData = {
+			Error: 1,
+			DVI: 0,
+			Port1: 0,
+			Port2: 0,
+		};
+		if (novastarRes.SendingCards.length > 0) {
+			const cardData: SendingCardData | undefined = novastarRes.SendingCards.find(
+				(el) => el.COM === query.Port,
+			);
+			if (cardData) {
+				shortRes.Error = cardData.Error ? 1 : 0;
+				shortRes.DVI = cardData.DVI ? 1 : 0;
+				shortRes.Port1 = cardData.Port1 ? 1 : 0;
+				shortRes.Port2 = cardData.Port2 ? 1 : 0;
+			}
+		}
+		return shortRes;
+	}
 	return novastarRes;
 }
 
@@ -211,11 +255,11 @@ const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 app.use(express.json());
 app.get('/', async (req, res) => {
-	const nsRes = await getNovastarData(novastarSerial);
+	const nsRes = await getNovastarData(novastarSerial, req.query);
 	return res.status(200).json(nsRes);
 });
 app.get('/test', async (req, res) => {
-	const nsRes = await getNovastarData(novastarSerial, true);
+	const nsRes = await getNovastarData(novastarSerial, req.query, true);
 	return res.status(200).json(nsRes);
 });
 
