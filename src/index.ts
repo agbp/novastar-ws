@@ -127,15 +127,6 @@ async function getNovastarCardData(
 		res.Error = true;
 		res.ErrorDescription = String(e);
 	}
-	if (query) {
-		const queryRes: ShortCardData = {
-			Error: 1,
-			DVI: 0,
-			Port1: 0,
-			Port2: 0,
-		};
-		return queryRes;
-	}
 	return res;
 }
 
