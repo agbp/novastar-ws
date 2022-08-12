@@ -2,7 +2,6 @@
 	"name": "novastar-ws",
 	"version": "1.0.0",
 	"description": "",
-	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "tsc src/index.ts"
@@ -33,5 +32,18 @@
 		"dotenv": "^16.0.1",
 		"express": "^4.18.1",
 		"serialport": "9.2.8"
+	},
+	"bin": "dist/index.js",
+	"pkg": {
+		"assets": [
+			"node_modules/**/*"
+		],
+		"outputPath": "bin",
+		"scripts": "dist/**/*.js",
+		"targets": [
+			"node14-linux-x64",
+			"node14-macos-x64",
+			"node14-win-x64"
+		]
 	}
 }

@@ -1,8 +1,13 @@
-import serial from '@novastar/serial';
-import codec from '@novastar/codec';
+// import serial from '@novastar/serial';
+// import codec from '@novastar/codec';
+// // import { Request, DeviceType } from '@novastar/codec';
+// import express from 'express';
+// import dotenv from 'dotenv';
+const serial = require('@novastar/serial');
+const codec = require('@novastar/codec');
 // import { Request, DeviceType } from '@novastar/codec';
-import express from 'express';
-import dotenv from 'dotenv';
+const express = require('express');
+const dotenv = require('dotenv');
 // import SerialPort from 'serialport';
 
 dotenv.config();
@@ -19,7 +24,7 @@ const novastarSerial = serial.default;
 // // Close all serial sessions
 // serial.release();
 
-const TEST_MODE = Boolean(process.env.TEST_MODE);
+const TEST_MODE = (process.env.TEST_MODE === 'true');
 
 interface SendingCardData {
 	COM: string | null,
@@ -85,7 +90,6 @@ async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<stri
 async function getNovastarCardData(
 	portPath: string,
 	nsSerial: any,
-	query: any = null,
 ): Promise<SendingCardData | ShortCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
@@ -205,7 +209,7 @@ async function getNovastarData(
 				async (nsCard: any): Promise<SendingCardData | ShortCardData> => {
 					const localRes = alt
 						? await getNovastarCardData2(nsCard.path, nsSerial)
-						: await getNovastarCardData(nsCard.path, nsSerial, query);
+						: await getNovastarCardData(nsCard.path, nsSerial);
 					return localRes;
 				},
 			));
@@ -257,6 +261,7 @@ app.get('/test', async (req, res) => {
 try {
 	app.listen(PORT, () => {
 		console.log(`Server started on port ${PORT}`);
+		console.log(`Monitoring novastar devices web service by Andrey.L.Golovin@gmail.com`);
 	});
 } catch (e) {
 	console.log(e);
