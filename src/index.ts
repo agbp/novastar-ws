@@ -250,12 +250,20 @@ const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 app.use(express.json());
 app.get('/', async (req, res) => {
-	const nsRes = await getNovastarData(novastarSerial, req.query);
-	return res.status(200).json(nsRes);
+	try {
+		const nsRes = await getNovastarData(novastarSerial, req.query);
+		return res.status(200).json(nsRes);
+	} catch (e) {
+		return res.status(500).json(e);
+	}
 });
 app.get('/test', async (req, res) => {
-	const nsRes = await getNovastarData(novastarSerial, req.query, true);
-	return res.status(200).json(nsRes);
+	try {
+		const nsRes = await getNovastarData(novastarSerial, req.query, true);
+		return res.status(200).json(nsRes);
+	} catch (e) {
+		return res.status(500).json(e);
+	}
 });
 
 try {
