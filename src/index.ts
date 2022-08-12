@@ -218,7 +218,7 @@ async function getNovastarData(
 			nsSerial.release();
 		}
 	}
-	if (query && query.Port) {
+	if (query && query.port) {
 		const shortRes: ShortCardData = {
 			Error: 1,
 			DVI: 0,
@@ -227,7 +227,7 @@ async function getNovastarData(
 		};
 		if (novastarRes.SendingCards.length > 0) {
 			const cardData: SendingCardData | undefined = novastarRes.SendingCards.find(
-				(el) => el.COM === query.Port,
+				(el) => el.COM === query.port,
 			);
 			if (cardData) {
 				shortRes.Error = cardData.Error ? 1 : 0;
