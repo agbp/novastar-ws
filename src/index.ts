@@ -3,7 +3,7 @@ import codec from '@novastar/codec';
 // import { Request, DeviceType } from '@novastar/codec';
 import express from 'express';
 import dotenv from 'dotenv';
-// import SerialPort from 'serialport';
+import SerialPort from 'serialport';
 
 dotenv.config();
 const novastarSerial = serial.default;
