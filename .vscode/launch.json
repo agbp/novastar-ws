@@ -15,6 +15,9 @@
 			"preLaunchTask": "tsc: build - tsconfig.json",
 			"outFiles": [
 				"${workspaceFolder}/**/*.js"
+			],
+			"args": [
+				"port:5000"
 			]
 		}
 	]
