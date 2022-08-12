@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // import serial from '@novastar/serial';
 // import codec from '@novastar/codec';
 // // import { Request, DeviceType } from '@novastar/codec';
@@ -134,6 +135,7 @@ async function getNovastarCardData(
 	return res;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: null,
@@ -249,7 +251,7 @@ const PORT = Number(process.env.PORT) || 5000;
 
 const app = express();
 app.use(express.json());
-app.get('/', async (req, res) => {
+app.get('/', async (req: any, res: any) => {
 	try {
 		const nsRes = await getNovastarData(novastarSerial, req.query);
 		return res.status(200).json(nsRes);
@@ -257,7 +259,7 @@ app.get('/', async (req, res) => {
 		return res.status(500).json(e);
 	}
 });
-app.get('/test', async (req, res) => {
+app.get('/test', async (req: any, res: any) => {
 	try {
 		const nsRes = await getNovastarData(novastarSerial, req.query, true);
 		return res.status(200).json(nsRes);
@@ -269,7 +271,7 @@ app.get('/test', async (req, res) => {
 try {
 	app.listen(PORT, () => {
 		console.log(`Server started on port ${PORT}`);
-		console.log(`Monitoring novastar devices web service by Andrey.L.Golovin@gmail.com`);
+		console.log('Monitoring novastar devices web service by Andrey.L.Golovin@gmail.com');
 	});
 } catch (e) {
 	console.log(e);
