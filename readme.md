@@ -57,7 +57,7 @@ https://github.com/agbp/novastar-ws
 https://www.npmjs.com/package/pkg  
 https://github.com/vercel/pkg  
 Пакет необходимо устанавливать глобально командой
->. npm install -g pkg  
+>npm install -g pkg  
 
 для формирования исполняемых файлов применять команду : 
 pkg package.json
