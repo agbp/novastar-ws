@@ -18,19 +18,19 @@ GET запрос без параметров вернет полный спис�
 результат :  
 ```JSON
 {
-	"Error":false,
-	"ErrorDescription":"",
-	"SendingCards":
-	[{
-		"COM":"COM6",
-		"Version":"4.7.7.0",
-		"DVI":true,
-		"Port1":false,
-		"Port1Model":null,
-		"Port2":true,
-		"Port2Model":"Unknown ReceivingCard (4508h)",
-		"Error":null,"ErrorDescription":null
-		}]
+ "Error":false,
+ "ErrorDescription":"",
+ "SendingCards":
+ [{
+  "COM":"COM6",
+  "Version":"4.7.7.0",
+  "DVI":true,
+  "Port1":false,
+  "Port1Model":null,
+  "Port2":true,
+  "Port2Model":"Unknown ReceivingCard (4508h)",
+  "Error":null,"ErrorDescription":null
+  }]
 }  
 ```
 запрос с параметром вернет краткие данные по устройству, подключенному к соответствующему порту, например :  
