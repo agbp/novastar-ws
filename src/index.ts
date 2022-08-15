@@ -1,53 +1,52 @@
-// import serial from '@novastar/serial';
-// import codec from '@novastar/codec';
-// // import { Request, DeviceType } from '@novastar/codec';
-// import express from 'express';
-// import dotenv from 'dotenv';
+import { DeviceType } from '@novastar/codec';
+import { } from '@novastar/serial';
+
+import { Request, Response } from 'express';
+import { PortInfo } from 'serialport';
+import {
+	NovastarResult,
+	SendingCardData,
+	ShortCardData,
+	TimeOutErrorInterface,
+} from './types';
+
 const serial = require('@novastar/serial');
 const codec = require('@novastar/codec');
-// import { Request, DeviceType } from '@novastar/codec';
 const express = require('express');
 const dotenv = require('dotenv');
-// import SerialPort from 'serialport';
 
-interface SendingCardData {
-	COM: string | null,
-	Version: string | null,
-	DVI: boolean | null,
-	Port1: boolean | null,
-	Port1Model: string | null,
-	Port2: boolean | null,
-	Port2Model: string | null,
-	Error: boolean | null,
-	ErrorDescription: string | null,
+const timeOutError: TimeOutErrorInterface = {
+	error: false,
+	errorDescription: '',
+	promise: null,
+	reason: null,
+};
+
+function clearTimeOutError() {
+	timeOutError.error = false;
+	timeOutError.errorDescription = '';
+	timeOutError.promise = null;
+	timeOutError.reason = null;
 }
 
-interface ShortCardData {
-	Error: 0 | 1,
-	DVI: 0 | 1,
-	Port1: 0 | 1,
-	Port2: 0 | 1,
-}
-
-interface NovastarResult {
-	Error: boolean | null,
-	ErrorDescription: string | null,
-	SendingCards: SendingCardData[],
-}
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+	// eslint-disable-next-line no-console
+	console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+	timeOutError.error = true;
+	timeOutError.promise = promise;
+	timeOutError.reason = reason;
+	if (reason) {
+		if (reason instanceof Error && reason.stack) {
+			timeOutError.errorDescription = reason.stack;
+		} else {
+			timeOutError.errorDescription = String(reason);
+		}
+	}
+	// Application specific logging, throwing an error, or other logic here
+});
 
 dotenv.config();
 const novastarSerial = serial.default;
-
-// const [port] = await serial.findSendingCards();
-// const session = await serial.open(port.path);
-// const readReq = new Request(1);
-// readReq.deviceType = DeviceType.ReceivingCard;
-// readReq.address = 0x02000001;
-// readReq.port = 0;
-// const { data: [value] } = await session.connection.send(readReq);
-
-// // Close all serial sessions
-// serial.release();
 
 function isTestMode(args: string[]): boolean {
 	return Boolean(args.find((el: string) => el.toLowerCase() === 'test'))
@@ -80,7 +79,7 @@ function clog(...args: any) {
 	}
 }
 
-async function getDVI(portPath: any, nsSerial: any): Promise<boolean | null> {
+async function getDVI(portPath: string, nsSerial: any): Promise<boolean | null> {
 	try {
 		const session = await nsSerial.open(portPath);
 		const res = await session.hasDVISignalIn();
@@ -91,12 +90,12 @@ async function getDVI(portPath: any, nsSerial: any): Promise<boolean | null> {
 }
 
 async function getModel(
-	portPath: any,
+	portPath: string,
 	nsSerial: any,
-	type: any,
+	type: DeviceType,
 	port: number = 0,
 	rcvIndex: number = 0,
-): Promise<any> {
+): Promise<string | null> {
 	try {
 		const session = await nsSerial.open(portPath);
 		const res = await session.getModel(type, port, rcvIndex);
@@ -106,7 +105,7 @@ async function getModel(
 	}
 }
 
-async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<string | null> {
+async function getSendingCardVersion(portPath: String, nsSerial: any): Promise<string | null> {
 	try {
 		const session = await nsSerial.open(portPath);
 		const res = await session.getSendingCardVersion();
@@ -119,7 +118,7 @@ async function getSendingCardVersion(portPath: any, nsSerial: any): Promise<stri
 async function getNovastarCardData(
 	portPath: string,
 	nsSerial: any,
-): Promise<SendingCardData | ShortCardData> {
+): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
 		Version: null,
@@ -132,28 +131,12 @@ async function getNovastarCardData(
 		ErrorDescription: null,
 	};
 	try {
-		// const session = await nsSerial.open(portPath);
-		// res.DVI = await session.hasDVISignalIn();
-		// const test = await session.getModel(codec.DeviceType.ReceivingCard);
 		res.DVI = await getDVI(portPath, nsSerial);
 		res.Port1Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 0);
 		res.Port1 = res.Port1Model !== null;
 		res.Port2Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 1);
 		res.Port2 = res.Port2Model !== null;
 		res.Version = await getSendingCardVersion(portPath, nsSerial);
-		// const readReq: any = new codec.RequestPackage(1);
-		// readReq.deviceType = codec.DeviceType.ReceivingCard;
-		// readReq.address = 0x02000001;
-		// readReq.port = 0;
-		// (session.connection.send(readReq) as Promise<any>).then((reqRes: any) => {
-		// 	res.Error = false;
-		// 	res.ErrorDescription = '';
-		// 	console.log(reqRes);
-		// }).catch((e: any) => {
-		// 	res.Error = true;
-		// 	res.ErrorDescription = String(e);
-		// });
-		// const { data: [value] } = await session.connection.send(readReq);
 	} catch (e) {
 		res.Error = true;
 		res.ErrorDescription = String(e);
@@ -200,7 +183,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 async function getNovastarData(
 	nsSerial: any,
 	query: any = null,
-	alt: boolean = false,
+	test: boolean = false,
 ): Promise<NovastarResult | ShortCardData> {
 	const novastarRes: NovastarResult = {
 		Error: null,
@@ -209,12 +192,12 @@ async function getNovastarData(
 	};
 
 	try {
-		const novastarCardsList = await nsSerial.findSendingCards();
+		const novastarCardsList: PortInfo[] = await nsSerial.findSendingCards();
 
 		if (novastarCardsList.length <= 0) {
 			novastarRes.Error = true;
 			clog('no novastar cards detected');
-			if (TEST_MODE && !(query && query.port)) {
+			if (test && !(query && query.port)) {
 				novastarRes.SendingCards.push({
 					COM: 'COM1',
 					Version: 'some version',
@@ -230,12 +213,19 @@ async function getNovastarData(
 			} else {
 				novastarRes.ErrorDescription = 'no novastar cards detected';
 			}
+
+			// // test tracing error with promice timeout rejection
+			// // eslint-disable-next-line @typescript-eslint/no-unused-vars
+			// const rejTest = await getDVI('COM1', nsSerial).catch((e) => {
+			// 	// eslint-disable-next-line no-console
+			// 	console.log(e);
+			// });
 		} else {
 			novastarRes.Error = false;
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
-				async (nsCard: any): Promise<SendingCardData | ShortCardData> => {
-					const localRes = alt
+				async (nsCard: PortInfo): Promise<SendingCardData> => {
+					const localRes = test
 						? await getNovastarCardData2(nsCard.path, nsSerial)
 						: await getNovastarCardData(nsCard.path, nsSerial);
 					return localRes;
@@ -273,22 +263,53 @@ async function getNovastarData(
 	return novastarRes;
 }
 
+function timeOutHandler(req: Request, res: Response) {
+	const timeOutInterval = setInterval(() => {
+		const nsRes: NovastarResult = {
+			Error: true,
+			ErrorDescription: '',
+			SendingCards: [],
+		};
+		const nsShortRes: ShortCardData = {
+			Error: 1,
+			DVI: 0,
+			Port1: 0,
+			Port2: 0,
+		};
+		if (timeOutError.error) {
+			nsRes.ErrorDescription = timeOutError.errorDescription;
+			res.status(500).json((req.query && req.query.port) ? nsShortRes : nsRes);
+			clearInterval(timeOutInterval);
+			clearTimeOutError();
+		}
+	}, 1000);
+	return timeOutInterval;
+}
+
 const app = express();
 app.use(express.json());
-app.get('/', async (req: any, res: any) => {
+app.get('/', async (req: Request, res: Response) => {
+	const timeOutInterval = timeOutHandler(req, res);
 	try {
-		const nsRes = await getNovastarData(novastarSerial, req.query);
+		const nsRes = await getNovastarData(novastarSerial, req.query, TEST_MODE);
 		return res.status(200).json(nsRes);
 	} catch (e) {
 		return res.status(500).json(e);
+	} finally {
+		clearInterval(timeOutInterval);
+		clearTimeOutError();
 	}
 });
-app.get('/test', async (req: any, res: any) => {
+app.get('/test', async (req: Request, res: Response) => {
+	const timeOutInterval = timeOutHandler(req, res);
 	try {
 		const nsRes = await getNovastarData(novastarSerial, req.query, true);
 		return res.status(200).json(nsRes);
 	} catch (e) {
 		return res.status(500).json(e);
+	} finally {
+		clearInterval(timeOutInterval);
+		clearTimeOutError();
 	}
 });
 
