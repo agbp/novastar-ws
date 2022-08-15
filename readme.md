@@ -60,7 +60,8 @@ https://github.com/vercel/pkg
 >npm install -g pkg  
 
 для формирования исполняемых файлов применять команду : 
-pkg package.json
+> pkg package.json  
+
 в результате работы в папке проекта bin будут созданы исполняемые файлы для платформ windows, linux и mac :
 * novastar-ws-linux
 * novastar-ws-macos
