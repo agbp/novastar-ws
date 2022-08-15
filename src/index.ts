@@ -127,7 +127,7 @@ async function getNovastarCardData(
 		Port1Model: null,
 		Port2: null,
 		Port2Model: null,
-		Error: null,
+		ErrorCode: 0,
 		ErrorDescription: null,
 	};
 	try {
@@ -138,7 +138,7 @@ async function getNovastarCardData(
 		res.Port2 = res.Port2Model !== null;
 		res.Version = await getSendingCardVersion(portPath, nsSerial);
 	} catch (e) {
-		res.Error = true;
+		res.ErrorCode = 1;
 		res.ErrorDescription = String(e);
 	}
 	return res;
@@ -154,7 +154,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 		Port1Model: null,
 		Port2: null,
 		Port2Model: null,
-		Error: null,
+		ErrorCode: 0,
 		ErrorDescription: null,
 	};
 	// try {
@@ -206,7 +206,7 @@ async function getNovastarData(
 					Port1Model: null,
 					Port2: true,
 					Port2Model: 'some test model for port2',
-					Error: false,
+					ErrorCode: 0,
 					ErrorDescription: '',
 				});
 				novastarRes.ErrorDescription = 'no novastar cards detected, TEST_MODE is on, test data added';
@@ -252,7 +252,7 @@ async function getNovastarData(
 				(el) => el.COM === query.port,
 			);
 			if (cardData) {
-				shortRes.Error = cardData.Error ? 1 : 0;
+				shortRes.Error = cardData.ErrorCode;
 				shortRes.DVI = cardData.DVI ? 1 : 0;
 				shortRes.Port1 = cardData.Port1 ? 1 : 0;
 				shortRes.Port2 = cardData.Port2 ? 1 : 0;
@@ -271,7 +271,7 @@ function timeOutHandler(req: Request, res: Response) {
 			SendingCards: [],
 		};
 		const nsShortRes: ShortCardData = {
-			Error: 1,
+			Error: 2,
 			DVI: 0,
 			Port1: 0,
 			Port2: 0,

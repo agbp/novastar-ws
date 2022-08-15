@@ -6,12 +6,12 @@ export interface SendingCardData {
 	Port1Model: string | null,
 	Port2: boolean | null,
 	Port2Model: string | null,
-	Error: boolean | null,
+	ErrorCode: 0 | 1 | 2 | 3,
 	ErrorDescription: string | null,
 }
 
 export interface ShortCardData {
-	Error: 0 | 1,
+	Error: 0 | 1 | 2 | 3,
 	DVI: 0 | 1,
 	Port1: 0 | 1,
 	Port2: 0 | 1,
