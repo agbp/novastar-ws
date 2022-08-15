@@ -1,16 +1,16 @@
-import { DeviceType } from '@novastar/codec';
-import { } from '@novastar/serial';
+import { DeviceType, Session } from '@novastar/codec';
 
 import { Request, Response } from 'express';
 import { PortInfo } from 'serialport';
 import {
 	NovastarResult,
 	SendingCardData,
+	SerialBinding,
 	ShortCardData,
 	TimeOutErrorInterface,
 } from './types';
 
-const serial = require('@novastar/serial');
+const serial: SerialBinding = require('@novastar/serial');
 const codec = require('@novastar/codec');
 const express = require('express');
 const dotenv = require('dotenv');
@@ -42,11 +42,10 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
 			timeOutError.errorDescription = String(reason);
 		}
 	}
-	// Application specific logging, throwing an error, or other logic here
 });
 
 dotenv.config();
-const novastarSerial = serial.default;
+const novastarSerial: SerialBinding = serial.default;
 
 function isTestMode(args: string[]): boolean {
 	return Boolean(args.find((el: string) => el.toLowerCase() === 'test'))
@@ -79,7 +78,26 @@ function clog(...args: any) {
 	}
 }
 
-async function getDVI(portPath: string, nsSerial: any): Promise<boolean | null> {
+async function callNovastarSessionFunc(
+	nsSerial: SerialBinding,
+	portPath: string,
+	func: (...fargs: any) => Promise<any>,
+	...args: any
+): Promise<any> {
+	try {
+		const session = await nsSerial.open(portPath);
+		const res = await func.call(session, args);
+		return res;
+	} catch (e) {
+		return null;
+	}
+}
+
+async function getDVI1(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
+	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.hasDVISignalIn);
+}
+
+async function getDVI(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
 	try {
 		const session = await nsSerial.open(portPath);
 		const res = await session.hasDVISignalIn();
@@ -90,8 +108,8 @@ async function getDVI(portPath: string, nsSerial: any): Promise<boolean | null> 
 }
 
 async function getModel(
+	nsSerial: SerialBinding,
 	portPath: string,
-	nsSerial: any,
 	type: DeviceType,
 	port: number = 0,
 	rcvIndex: number = 0,
@@ -105,7 +123,10 @@ async function getModel(
 	}
 }
 
-async function getSendingCardVersion(portPath: String, nsSerial: any): Promise<string | null> {
+async function getSendingCardVersion(
+	nsSerial: SerialBinding,
+	portPath: string,
+): Promise<string | null> {
 	try {
 		const session = await nsSerial.open(portPath);
 		const res = await session.getSendingCardVersion();
@@ -116,8 +137,8 @@ async function getSendingCardVersion(portPath: String, nsSerial: any): Promise<s
 }
 
 async function getNovastarCardData(
+	nsSerial: SerialBinding,
 	portPath: string,
-	nsSerial: any,
 ): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		COM: portPath,
@@ -131,12 +152,13 @@ async function getNovastarCardData(
 		ErrorDescription: null,
 	};
 	try {
-		res.DVI = await getDVI(portPath, nsSerial);
-		res.Port1Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 0);
+		res.DVI = await getDVI(nsSerial, portPath);
+		res.Port1Model = await getModel(nsSerial, portPath, codec.DeviceType.ReceivingCard, 0);
 		res.Port1 = res.Port1Model !== null;
-		res.Port2Model = await getModel(portPath, nsSerial, codec.DeviceType.ReceivingCard, 1);
+		res.Port2Model = await getModel(nsSerial, portPath, codec.DeviceType.ReceivingCard, 1);
 		res.Port2 = res.Port2Model !== null;
-		res.Version = await getSendingCardVersion(portPath, nsSerial);
+		res.Version = await getSendingCardVersion(nsSerial, portPath);
+		const test = await getDVI1(nsSerial, portPath);
 	} catch (e) {
 		res.ErrorCode = 1;
 		res.ErrorDescription = String(e);
@@ -226,8 +248,8 @@ async function getNovastarData(
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: PortInfo): Promise<SendingCardData> => {
 					const localRes = test
-						? await getNovastarCardData2(nsCard.path, nsSerial)
-						: await getNovastarCardData(nsCard.path, nsSerial);
+						? await getNovastarCardData2(nsSerial, nsCard.path)
+						: await getNovastarCardData(nsSerial, nsCard.path);
 					return localRes;
 				},
 			));
@@ -315,14 +337,10 @@ app.get('/test', async (req: Request, res: Response) => {
 
 try {
 	app.listen(PORT, () => {
-		// eslint-disable-next-line no-console
-		console.log(`Server started on port ${PORT}`);
-		// eslint-disable-next-line no-console
-		console.log('Monitoring novastar devices web service by Andrey.L.Golovin@gmail.com');
-		// eslint-disable-next-line no-console
-		console.log('usage: ');
-		// eslint-disable-next-line no-console
-		console.log('nowastar-ws-win.exe [port:5000] [silent] [test]');
+		clog(`Server started on port ${PORT}`);
+		clog('Monitoring novastar devices web service - https://github.com/agbp/novastar-ws');
+		clog('usage: ');
+		clog('nowastar-ws-win.exe [port:5000] [silent] [test]');
 		if (TEST_MODE) {
 			clog('TEST_MODE is on');
 		}

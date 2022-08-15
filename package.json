@@ -30,7 +30,8 @@
 		"@novastar/serial": "1.0.5",
 		"dotenv": "^16.0.1",
 		"express": "^4.18.1",
-		"serialport": "9.2.8"
+		"serialport": "9.2.8",
+		"tiny-typed-emitter": "^2.0.3"
 	},
 	"bin": "dist/index.js",
 	"pkg": {
