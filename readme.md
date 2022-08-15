@@ -53,17 +53,17 @@ https://github.com/agbp/novastar-ws
 В packaje.json указаны конкретные версии пакетов @novastar (1.0.5) и serialport (9.2.8) - как показала проверка в процессе разработки - эти версии совместимы и с ними все работает, установка более поздних или других версий может привести к потере работоспособности сервиса.
 
 ## Формирование исполняемых файлов
-Для сборки сервиса в исполняемые файлы можно использовать пакет pkg
-https://www.npmjs.com/package/pkg
-https://github.com/vercel/pkg 
+Для сборки сервиса в исполняемые файлы можно использовать пакет pkg  
+https://www.npmjs.com/package/pkg  
+https://github.com/vercel/pkg  
 Пакет необходимо устанавливать глобально командой
-npm install -g pkg
+>. npm install -g pkg  
 для формирования исполняемых файлов применять команду : 
 pkg package.json
 в результате работы в папке проекта bin будут созданы исполняемые файлы для платформ windows, linux и mac :
-novastar-ws-linux
-novastar-ws-macos
-novastar-ws-win.exe
+* novastar-ws-linux
+* novastar-ws-macos
+* novastar-ws-win.exe
 
 ## контакты
 Andrey.L.Golovin@gmail.com, +79183929922
