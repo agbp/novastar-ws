@@ -58,6 +58,7 @@ https://www.npmjs.com/package/pkg
 https://github.com/vercel/pkg  
 Пакет необходимо устанавливать глобально командой
 >. npm install -g pkg  
+
 для формирования исполняемых файлов применять команду : 
 pkg package.json
 в результате работы в папке проекта bin будут созданы исполняемые файлы для платформ windows, linux и mac :
