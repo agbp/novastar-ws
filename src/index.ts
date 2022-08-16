@@ -21,6 +21,8 @@ const codec = require('@novastar/codec');
 const express = require('express');
 const dotenv = require('dotenv');
 
+const novastarSerial: SerialBinding = serial.default;
+
 const timeOutError: TimeOutErrorInterface = {
 	error: false,
 	errorDescription: '',
@@ -37,6 +39,8 @@ function clearTimeOutError() {
 
 process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
 	clog('Unhandled Rejection at:', promise, 'reason:', reason);
+	const sessions = novastarSerial.getSessions();
+	sessions.forEach((session) => session.close());
 	timeOutError.error = true;
 	timeOutError.promise = promise;
 	timeOutError.reason = reason;
@@ -50,7 +54,6 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
 });
 
 dotenv.config();
-const novastarSerial: SerialBinding = serial.default;
 
 function isTestMode(args: string[]): boolean {
 	return Boolean(args.find((el: string) => el.toLowerCase() === 'test'))
