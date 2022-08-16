@@ -10,7 +10,7 @@ import {
 	TimeOutErrorInterface,
 } from './types';
 
-const serial: SerialBinding = require('@novastar/serial');
+const serial = require('@novastar/serial');
 const codec = require('@novastar/codec');
 const express = require('express');
 const dotenv = require('dotenv');
@@ -87,24 +87,16 @@ async function callNovastarSessionFunc(
 	try {
 		const session = await nsSerial.open(portPath);
 		const res = await func.call(session, args);
+		nsSerial.close(portPath);
 		return res;
 	} catch (e) {
+		nsSerial.close(portPath);
 		return null;
 	}
-}
-
-async function getDVI1(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
-	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.hasDVISignalIn);
 }
 
 async function getDVI(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
-	try {
-		const session = await nsSerial.open(portPath);
-		const res = await session.hasDVISignalIn();
-		return res;
-	} catch (e) {
-		return null;
-	}
+	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.hasDVISignalIn);
 }
 
 async function getModel(
@@ -114,13 +106,19 @@ async function getModel(
 	port: number = 0,
 	rcvIndex: number = 0,
 ): Promise<string | null> {
-	try {
-		const session = await nsSerial.open(portPath);
-		const res = await session.getModel(type, port, rcvIndex);
-		return res;
-	} catch (e) {
-		return null;
-	}
+	return callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getModel,
+		[type, port, rcvIndex],
+	);
+	// try {
+	// 	const session = await nsSerial.open(portPath);
+	// 	const res = await session.getModel(type, port, rcvIndex);
+	// 	return res;
+	// } catch (e) {
+	// 	return null;
+	// }
 }
 
 async function getSendingCardVersion(
@@ -158,7 +156,6 @@ async function getNovastarCardData(
 		res.Port2Model = await getModel(nsSerial, portPath, codec.DeviceType.ReceivingCard, 1);
 		res.Port2 = res.Port2Model !== null;
 		res.Version = await getSendingCardVersion(nsSerial, portPath);
-		const test = await getDVI1(nsSerial, portPath);
 	} catch (e) {
 		res.ErrorCode = 1;
 		res.ErrorDescription = String(e);
