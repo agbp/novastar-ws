@@ -220,6 +220,7 @@ async function getNovastarCardData(
 		version: null,
 		DVI: null,
 		autobrightness: null,
+		portInfo: null,
 		portData: [],
 	};
 	try {
@@ -239,7 +240,7 @@ async function getNovastarCardData(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<SendingCardData> {
+async function getNovastarCardData2(nsSerial: any, portPath: string): Promise<SendingCardData> {
 	const res: SendingCardData = {
 		errorCode: 0,
 		errorDescription: null,
@@ -247,6 +248,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 		version: null,
 		DVI: null,
 		autobrightness: null,
+		portInfo: null,
 		portData: [],
 	};
 	// try {
@@ -273,7 +275,7 @@ async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<Se
 }
 
 async function getNovastarData(
-	nsSerial: any,
+	nsSerial: SerialBinding,
 	query: any = null,
 	test: boolean = false,
 ): Promise<NovastarResult | ShortCardData> {
@@ -297,6 +299,7 @@ async function getNovastarData(
 					version: 'some version',
 					DVI: true,
 					autobrightness: false,
+					portInfo: null,
 					portData: [{
 						portNumber: 0,
 						model: 'some model for test',
@@ -333,9 +336,10 @@ async function getNovastarData(
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: PortInfo): Promise<SendingCardData> => {
-					const localRes = test
+					const localRes: SendingCardData = test
 						? await getNovastarCardData2(nsSerial, nsCard.path)
 						: await getNovastarCardData(nsSerial, nsCard.path);
+					localRes.portInfo = nsCard;
 					return localRes;
 				},
 			));
@@ -344,9 +348,8 @@ async function getNovastarData(
 		novastarRes.Error = 3;
 		novastarRes.ErrorDescription = String(e);
 	} finally {
-		if (nsSerial.sessions.length > 0) {
-			nsSerial.release();
-		}
+		const sessions = novastarSerial.getSessions();
+		sessions.forEach((session) => session.close());
 	}
 	if (query && query.port) {
 		const shortRes: ShortCardData = {

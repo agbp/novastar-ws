@@ -30,6 +30,7 @@ export interface SendingCardData {
 	version: string | null,
 	DVI: boolean | null,
 	autobrightness: boolean | null,
+	portInfo: PortInfo | null,
 	portData: SendingCardPortData[],
 }
 
