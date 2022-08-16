@@ -17,8 +17,7 @@
 				"${workspaceFolder}/**/*.js"
 			],
 			"args": [
-				"port:5000",
-				"test"
+				"port:5000"
 			]
 		}
 	]

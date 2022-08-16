@@ -17,7 +17,7 @@ import {
 } from './types';
 
 const serial = require('@novastar/serial');
-const codec = require('@novastar/codec');
+// const codec = require('@novastar/codec');
 const express = require('express');
 const dotenv = require('dotenv');
 
@@ -89,67 +89,68 @@ function clog(...args: any) {
 async function callNovastarSessionFunc(
 	nsSerial: SerialBinding,
 	portPath: string,
+	session: any,
 	func: (...fargs: any) => Promise<any>,
 	...args: any
 ): Promise<any> {
 	try {
-		const session = await nsSerial.open(portPath);
-		const res = await func.apply(session, args);
-		nsSerial.close(portPath);
+		const res = await func.apply(session ?? await nsSerial.open(portPath), args);
+		// nsSerial.close(portPath);
 		return res;
 	} catch (e) {
-		nsSerial.close(portPath);
+		// nsSerial.close(portPath);
 		return null;
 	}
 }
 
-async function getDVI(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
-	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.hasDVISignalIn);
-}
+// async function getDVI(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
+// 	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.hasDVISignalIn);
+// }
 
-async function getModel(
-	nsSerial: SerialBinding,
-	portPath: string,
-	type: DeviceType,
-	port: number = 0,
-	rcvIndex: number = 0,
-): Promise<string | null> {
-	return callNovastarSessionFunc(
-		nsSerial,
-		portPath,
-		Session.prototype.getModel,
-		type,
-		port,
-		rcvIndex,
-	);
-	// try {
-	// 	const session = await nsSerial.open(portPath);
-	// 	const res = await session.getModel(type, port, rcvIndex);
-	// 	return res;
-	// } catch (e) {
-	// 	return null;
-	// }
-}
+// async function getModel(
+// 	nsSerial: SerialBinding,
+// 	portPath: string,
+// 	type: DeviceType,
+// 	port: number = 0,
+// 	rcvIndex: number = 0,
+// ): Promise<string | null> {
+// 	return callNovastarSessionFunc(
+// 		nsSerial,
+// 		portPath,
+// 		Session.prototype.getModel,
+// 		type,
+// 		port,
+// 		rcvIndex,
+// 	);
+// 	// try {
+// 	// 	const session = await nsSerial.open(portPath);
+// 	// 	const res = await session.getModel(type, port, rcvIndex);
+// 	// 	return res;
+// 	// } catch (e) {
+// 	// 	return null;
+// 	// }
+// }
 
-async function getSendingCardVersion(
-	nsSerial: SerialBinding,
-	portPath: string,
-): Promise<string | null> {
-	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.getSendingCardVersion);
-	// try {
-	// 	const session = await nsSerial.open(portPath);
-	// 	const res = await session.getSendingCardVersion();
-	// 	return res;
-	// } catch (e) {
-	// 	return null;
-	// }
-}
+// async function getSendingCardVersion(
+// 	nsSerial: SerialBinding,
+// 	portPath: string,
+// ): Promise<string | null> {
+// 	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.getSendingCardVersion);
+// 	// try {
+// 	// 	const session = await nsSerial.open(portPath);
+// 	// 	const res = await session.getSendingCardVersion();
+// 	// 	return res;
+// 	// } catch (e) {
+// 	// 	return null;
+// 	// }
+// }
 
 async function getSendingCardPortInfo(
 	nsSerial: SerialBinding,
 	portPath: string,
+	session: any,
 	portNum: 0 | 1 | 2 | 3,
-): Promise<SendingCardPortData> {
+): Promise<SendingCardPortData | null> {
 	const res: SendingCardPortData = {
 		portNumber: portNum,
 		errorCode: 0,
@@ -163,38 +164,45 @@ async function getSendingCardPortInfo(
 	res.model = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
+		session,
 		Session.prototype.getModel,
-		codec.DeviceType.ReceivingCard,
+		DeviceType.ReceivingCard,
 		portNum,
 		0,
 	);
+	if (res.model === null) return null;
 	res.brightness = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
+		session,
 		Session.prototype.getBrightness,
 		portNum,
 	);
 	res.brightnessRGBV = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
+		session,
 		Session.prototype.getBrightnessRGBV,
 		portNum,
 	);
 	res.calibrationMode = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
+		session,
 		Session.prototype.getCalibrationMode,
 		portNum,
 	);
 	res.displayMode = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
+		session,
 		Session.prototype.getDisplayMode,
 		portNum,
 	);
 	res.gammaValue = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
+		session,
 		Session.prototype.getGammaValue,
 		portNum,
 	);
@@ -204,12 +212,19 @@ async function getSendingCardPortInfo(
 async function getSendingCardPortsInfo(
 	nsSerial: SerialBinding,
 	portPath: string,
+	session: any,
 ): Promise<SendingCardPortData[]> {
 	const res: SendingCardPortData[] = [];
-	res.push(await getSendingCardPortInfo(nsSerial, portPath, 0));
-	res.push(await getSendingCardPortInfo(nsSerial, portPath, 1));
-	res.push(await getSendingCardPortInfo(nsSerial, portPath, 2));
-	res.push(await getSendingCardPortInfo(nsSerial, portPath, 3));
+	for (let portN: 0 | 1 | 2 | 3 = 0; portN <= 3; portN += 1) {
+		// eslint-disable-next-line no-await-in-loop
+		const portData = await getSendingCardPortInfo(
+			nsSerial,
+			portPath,
+			session,
+			portN as 0 | 1 | 2 | 3,
+		);
+		if (portData) res.push(portData);
+	}
 	return res;
 }
 
@@ -228,14 +243,28 @@ async function getNovastarCardData(
 		portsData: [],
 	};
 	try {
-		res.DVI = await getDVI(nsSerial, portPath);
-		res.version = await getSendingCardVersion(nsSerial, portPath);
+		const session = await nsSerial.open(portPath);
+		res.DVI = await callNovastarSessionFunc(
+			nsSerial,
+			portPath,
+			session,
+			Session.prototype.hasDVISignalIn,
+		);
+		// res.DVI = await getDVI(nsSerial, portPath);
+		res.version = await callNovastarSessionFunc(
+			nsSerial,
+			portPath,
+			session,
+			Session.prototype.getSendingCardVersion,
+		);
+		// res.version = await getSendingCardVersion(nsSerial, portPath);
 		res.autobrightness = await callNovastarSessionFunc(
 			nsSerial,
 			portPath,
+			session,
 			Session.prototype.getAutobrightnessMode,
 		);
-		res.portsData = await getSendingCardPortsInfo(nsSerial, portPath);
+		res.portsData = await getSendingCardPortsInfo(nsSerial, portPath, session);
 	} catch (e) {
 		res.errorCode = 1;
 		res.errorDescription = String(e);
