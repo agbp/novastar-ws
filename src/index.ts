@@ -91,7 +91,7 @@ async function callNovastarSessionFunc(
 ): Promise<any> {
 	try {
 		const session = await nsSerial.open(portPath);
-		const res = await func.call(session, args);
+		const res = await func.apply(session, args);
 		nsSerial.close(portPath);
 		return res;
 	} catch (e) {
