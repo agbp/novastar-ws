@@ -1,13 +1,13 @@
 # Web-сервис для мониторинга устройств novastar
 
-1. [Запуск сервиса](#ServStart)
+1. [Запуск сервиса](#ServiceStart)
 2. [Запросы к сервису](#RequestsExamples)
 3. [Адрес репозитория](#Repository)
 4. [Сборка](#Build)
 5. [Формирование исполняемых файлов](#Executables)
 6. [Контакты](#Contacts)
 
-## <a name="ServStart"></a>Запуск сервиса
+## <a name="ServiceStart"></a>Запуск сервиса
 При имеющемся exe файле сервиса `novastar-ws-win.exe` - скопировать его на хост и запустить без параметров.  
 ```Bash
 novastar-ws-win.exe
@@ -63,7 +63,7 @@ http://127.0.0.1:5000/?port=COM6
 ## <a name="Repository"></a>Адрес репозитория
 https://github.com/agbp/novastar-ws
 
-## <a name="Build"></a>СБОРКА
+## <a name="Build"></a>Сборка
 Важно !
 В `packaje.json` указаны конкретные версии пакетов `@novastar (1.0.5)` и `serialport (9.2.8)` - как показала проверка в процессе разработки - эти версии совместимы, и с ними все работает, установка более поздних или других версий может привести к потере работоспособности сервиса.
 
@@ -84,6 +84,6 @@ pkg package.json
 * novastar-ws-macos
 * novastar-ws-win.exe
 
-## <a name="Contacts"></a>контакты
+## <a name="Contacts"></a>Контакты
 Andrey.L.Golovin@gmail.com, +79183929922
 
