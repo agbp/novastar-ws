@@ -1,10 +1,16 @@
-import { DeviceType, Session } from '@novastar/codec';
+import {
+	Calibration,
+	DeviceType,
+	DisplayMode,
+	Session,
+} from '@novastar/codec';
 
 import { Request, Response } from 'express';
 import { PortInfo } from 'serialport';
 import {
 	NovastarResult,
 	SendingCardData,
+	SendingCardPortData,
 	SerialBinding,
 	ShortCardData,
 	TimeOutErrorInterface,
@@ -30,8 +36,7 @@ function clearTimeOutError() {
 }
 
 process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
-	// eslint-disable-next-line no-console
-	console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+	clog('Unhandled Rejection at:', promise, 'reason:', reason);
 	timeOutError.error = true;
 	timeOutError.promise = promise;
 	timeOutError.reason = reason;
@@ -125,13 +130,80 @@ async function getSendingCardVersion(
 	nsSerial: SerialBinding,
 	portPath: string,
 ): Promise<string | null> {
-	try {
-		const session = await nsSerial.open(portPath);
-		const res = await session.getSendingCardVersion();
-		return res;
-	} catch (e) {
-		return null;
-	}
+	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.getSendingCardVersion);
+	// try {
+	// 	const session = await nsSerial.open(portPath);
+	// 	const res = await session.getSendingCardVersion();
+	// 	return res;
+	// } catch (e) {
+	// 	return null;
+	// }
+}
+
+async function getSendingCardPortInfo(
+	nsSerial: SerialBinding,
+	portPath: string,
+	portNum: 0 | 1 | 2 | 3,
+): Promise<SendingCardPortData> {
+	const res: SendingCardPortData = {
+		portNumber: portNum,
+		errorCode: 0,
+		model: null,
+		brightness: null,
+		brightnessRGBV: null,
+		calibrationMode: null,
+		displayMode: null,
+		gammaValue: null,
+	};
+	res.model = await callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getModel,
+		[codec.DeviceType.ReceivingCard, portNum],
+	);
+	res.brightness = await callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getBrightness,
+		[portNum],
+	);
+	res.brightnessRGBV = await callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getBrightnessRGBV,
+		[portNum],
+	);
+	res.calibrationMode = await callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getCalibrationMode,
+		[portNum],
+	);
+	res.displayMode = await callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getDisplayMode,
+		[portNum],
+	);
+	res.gammaValue = await callNovastarSessionFunc(
+		nsSerial,
+		portPath,
+		Session.prototype.getGammaValue,
+		[portNum],
+	);
+	return res;
+}
+
+async function getSendingCardPortsInfo(
+	nsSerial: SerialBinding,
+	portPath: string,
+): Promise<SendingCardPortData[]> {
+	const res: SendingCardPortData[] = [];
+	res.push(await getSendingCardPortInfo(nsSerial, portPath, 0));
+	res.push(await getSendingCardPortInfo(nsSerial, portPath, 1));
+	res.push(await getSendingCardPortInfo(nsSerial, portPath, 2));
+	res.push(await getSendingCardPortInfo(nsSerial, portPath, 3));
+	return res;
 }
 
 async function getNovastarCardData(
@@ -139,26 +211,26 @@ async function getNovastarCardData(
 	portPath: string,
 ): Promise<SendingCardData> {
 	const res: SendingCardData = {
+		errorCode: 0,
+		errorDescription: null,
 		COM: portPath,
-		Version: null,
+		version: null,
 		DVI: null,
-		Port1: null,
-		Port1Model: null,
-		Port2: null,
-		Port2Model: null,
-		ErrorCode: 0,
-		ErrorDescription: null,
+		autobrightness: null,
+		portData: [],
 	};
 	try {
 		res.DVI = await getDVI(nsSerial, portPath);
-		res.Port1Model = await getModel(nsSerial, portPath, codec.DeviceType.ReceivingCard, 0);
-		res.Port1 = res.Port1Model !== null;
-		res.Port2Model = await getModel(nsSerial, portPath, codec.DeviceType.ReceivingCard, 1);
-		res.Port2 = res.Port2Model !== null;
-		res.Version = await getSendingCardVersion(nsSerial, portPath);
+		res.version = await getSendingCardVersion(nsSerial, portPath);
+		res.portData = await getSendingCardPortsInfo(nsSerial, portPath);
+		res.autobrightness = await callNovastarSessionFunc(
+			nsSerial,
+			portPath,
+			Session.prototype.getAutobrightnessMode,
+		);
 	} catch (e) {
-		res.ErrorCode = 1;
-		res.ErrorDescription = String(e);
+		res.errorCode = 1;
+		res.errorDescription = String(e);
 	}
 	return res;
 }
@@ -166,15 +238,13 @@ async function getNovastarCardData(
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getNovastarCardData2(portPath: string, nsSerial: any): Promise<SendingCardData> {
 	const res: SendingCardData = {
+		errorCode: 0,
+		errorDescription: null,
 		COM: null,
-		Version: null,
+		version: null,
 		DVI: null,
-		Port1: null,
-		Port1Model: null,
-		Port2: null,
-		Port2Model: null,
-		ErrorCode: 0,
-		ErrorDescription: null,
+		autobrightness: null,
+		portData: [],
 	};
 	// try {
 	// 	let connection;
@@ -214,19 +284,35 @@ async function getNovastarData(
 		const novastarCardsList: PortInfo[] = await nsSerial.findSendingCards();
 
 		if (novastarCardsList.length <= 0) {
-			novastarRes.Error = true;
+			novastarRes.Error = 1;
 			clog('no novastar cards detected');
 			if (test && !(query && query.port)) {
 				novastarRes.SendingCards.push({
+					errorCode: 0,
+					errorDescription: '',
 					COM: 'COM1',
-					Version: 'some version',
+					version: 'some version',
 					DVI: true,
-					Port1: false,
-					Port1Model: null,
-					Port2: true,
-					Port2Model: 'some test model for port2',
-					ErrorCode: 0,
-					ErrorDescription: '',
+					autobrightness: false,
+					portData: [{
+						portNumber: 0,
+						model: 'some model for test',
+						brightness: 10,
+						brightnessRGBV: {
+							overall: 10,
+							red: 20,
+							green: 20,
+							blue: 20,
+							vRed: 30,
+						},
+						calibrationMode: {
+							isOn: true,
+							type: Calibration.Brightness,
+						},
+						displayMode: DisplayMode.Grayscale,
+						errorCode: 0,
+						gammaValue: 10,
+					}],
 				});
 				novastarRes.ErrorDescription = 'no novastar cards detected, TEST_MODE is on, test data added';
 			} else {
@@ -240,7 +326,7 @@ async function getNovastarData(
 			// 	console.log(e);
 			// });
 		} else {
-			novastarRes.Error = false;
+			novastarRes.Error = 0;
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: PortInfo): Promise<SendingCardData> => {
@@ -252,7 +338,7 @@ async function getNovastarData(
 			));
 		}
 	} catch (e) {
-		novastarRes.Error = true;
+		novastarRes.Error = 3;
 		novastarRes.ErrorDescription = String(e);
 	} finally {
 		if (nsSerial.sessions.length > 0) {
@@ -271,10 +357,10 @@ async function getNovastarData(
 				(el) => el.COM === query.port,
 			);
 			if (cardData) {
-				shortRes.Error = cardData.ErrorCode;
+				shortRes.Error = cardData.errorCode;
 				shortRes.DVI = cardData.DVI ? 1 : 0;
-				shortRes.Port1 = cardData.Port1 ? 1 : 0;
-				shortRes.Port2 = cardData.Port2 ? 1 : 0;
+				shortRes.Port1 = cardData.portData.find((portData) => portData.portNumber === 0) ? 1 : 0;
+				shortRes.Port2 = cardData.portData.find((portData) => portData.portNumber === 1) ? 1 : 0;
 			}
 		}
 		return shortRes;
@@ -285,7 +371,7 @@ async function getNovastarData(
 function timeOutHandler(req: Request, res: Response) {
 	const timeOutInterval = setInterval(() => {
 		const nsRes: NovastarResult = {
-			Error: true,
+			Error: 2,
 			ErrorDescription: '',
 			SendingCards: [],
 		};

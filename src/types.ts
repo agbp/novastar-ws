@@ -1,17 +1,36 @@
-import { Session } from '@novastar/codec';
+import {
+	BrightnessRGBV,
+	Calibration,
+	DisplayMode,
+	Session,
+} from '@novastar/codec';
 import SerialPort, { OpenOptions, PortInfo } from 'serialport';
 import { TypedEmitter } from 'tiny-typed-emitter';
 
+export interface CalibrationMode {
+	isOn: boolean,
+	type: Calibration,
+}
+
+export interface SendingCardPortData {
+	portNumber: 0 | 1 | 2 | 3,
+	errorCode: 0 | 1 | 2 | 3,
+	model: string | null,
+	brightness: number | null,
+	brightnessRGBV: BrightnessRGBV | null,
+	gammaValue: number | null,
+	displayMode: DisplayMode | null,
+	calibrationMode: CalibrationMode | null,
+}
+
 export interface SendingCardData {
+	errorCode: 0 | 1 | 2 | 3,
+	errorDescription: string | null,
 	COM: string | null,
-	Version: string | null,
+	version: string | null,
 	DVI: boolean | null,
-	Port1: boolean | null,
-	Port1Model: string | null,
-	Port2: boolean | null,
-	Port2Model: string | null,
-	ErrorCode: 0 | 1 | 2 | 3,
-	ErrorDescription: string | null,
+	autobrightness: boolean | null,
+	portData: SendingCardPortData[],
 }
 
 export interface ShortCardData {
@@ -22,7 +41,7 @@ export interface ShortCardData {
 }
 
 export interface NovastarResult {
-	Error: boolean | null,
+	Error: 0 | 1 | 2 | 3 | null,
 	ErrorDescription: string | null,
 	SendingCards: SendingCardData[],
 }
