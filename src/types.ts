@@ -31,7 +31,7 @@ export interface SendingCardData {
 	DVI: boolean | null,
 	autobrightness: boolean | null,
 	portInfo: PortInfo | null,
-	portData: SendingCardPortData[],
+	portsData: SendingCardPortData[],
 }
 
 export interface ShortCardData {

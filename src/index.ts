@@ -221,12 +221,12 @@ async function getNovastarCardData(
 		DVI: null,
 		autobrightness: null,
 		portInfo: null,
-		portData: [],
+		portsData: [],
 	};
 	try {
 		res.DVI = await getDVI(nsSerial, portPath);
 		res.version = await getSendingCardVersion(nsSerial, portPath);
-		res.portData = await getSendingCardPortsInfo(nsSerial, portPath);
+		res.portsData = await getSendingCardPortsInfo(nsSerial, portPath);
 		res.autobrightness = await callNovastarSessionFunc(
 			nsSerial,
 			portPath,
@@ -249,7 +249,7 @@ async function getNovastarCardData2(nsSerial: any, portPath: string): Promise<Se
 		DVI: null,
 		autobrightness: null,
 		portInfo: null,
-		portData: [],
+		portsData: [],
 	};
 	// try {
 	// 	let connection;
@@ -299,8 +299,16 @@ async function getNovastarData(
 					version: 'some version',
 					DVI: true,
 					autobrightness: false,
-					portInfo: null,
-					portData: [{
+					portInfo: {
+						path: 'COM1',
+						manufacturer: 'some manufacturer',
+						serialNumber: 'some serial',
+						pnpId: 'some pnpId',
+						locationId: 'locationId',
+						productId: 'productId',
+						vendorId: 'vendorId',
+					},
+					portsData: [{
 						portNumber: 0,
 						model: 'some model for test',
 						brightness: 10,
@@ -365,8 +373,8 @@ async function getNovastarData(
 			if (cardData) {
 				shortRes.Error = cardData.errorCode;
 				shortRes.DVI = cardData.DVI ? 1 : 0;
-				shortRes.Port1 = cardData.portData.find((portData) => portData.portNumber === 0) ? 1 : 0;
-				shortRes.Port2 = cardData.portData.find((portData) => portData.portNumber === 1) ? 1 : 0;
+				shortRes.Port1 = cardData.portsData.find((portData) => portData.portNumber === 0) ? 1 : 0;
+				shortRes.Port2 = cardData.portsData.find((portData) => portData.portNumber === 1) ? 1 : 0;
 			}
 		}
 		return shortRes;
