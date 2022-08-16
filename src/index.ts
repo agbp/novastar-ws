@@ -103,48 +103,6 @@ async function callNovastarSessionFunc(
 	}
 }
 
-// async function getDVI(nsSerial: SerialBinding, portPath: string): Promise<boolean | null> {
-// 	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.hasDVISignalIn);
-// }
-
-// async function getModel(
-// 	nsSerial: SerialBinding,
-// 	portPath: string,
-// 	type: DeviceType,
-// 	port: number = 0,
-// 	rcvIndex: number = 0,
-// ): Promise<string | null> {
-// 	return callNovastarSessionFunc(
-// 		nsSerial,
-// 		portPath,
-// 		Session.prototype.getModel,
-// 		type,
-// 		port,
-// 		rcvIndex,
-// 	);
-// 	// try {
-// 	// 	const session = await nsSerial.open(portPath);
-// 	// 	const res = await session.getModel(type, port, rcvIndex);
-// 	// 	return res;
-// 	// } catch (e) {
-// 	// 	return null;
-// 	// }
-// }
-
-// async function getSendingCardVersion(
-// 	nsSerial: SerialBinding,
-// 	portPath: string,
-// ): Promise<string | null> {
-// 	return callNovastarSessionFunc(nsSerial, portPath, Session.prototype.getSendingCardVersion);
-// 	// try {
-// 	// 	const session = await nsSerial.open(portPath);
-// 	// 	const res = await session.getSendingCardVersion();
-// 	// 	return res;
-// 	// } catch (e) {
-// 	// 	return null;
-// 	// }
-// }
-
 async function getSendingCardPortInfo(
 	nsSerial: SerialBinding,
 	portPath: string,
@@ -250,14 +208,12 @@ async function getNovastarCardData(
 			session,
 			Session.prototype.hasDVISignalIn,
 		);
-		// res.DVI = await getDVI(nsSerial, portPath);
 		res.version = await callNovastarSessionFunc(
 			nsSerial,
 			portPath,
 			session,
 			Session.prototype.getSendingCardVersion,
 		);
-		// res.version = await getSendingCardVersion(nsSerial, portPath);
 		res.autobrightness = await callNovastarSessionFunc(
 			nsSerial,
 			portPath,
@@ -268,6 +224,8 @@ async function getNovastarCardData(
 	} catch (e) {
 		res.errorCode = 1;
 		res.errorDescription = String(e);
+	} finally {
+		nsSerial.close(portPath);
 	}
 	return res;
 }
