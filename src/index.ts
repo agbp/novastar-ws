@@ -118,7 +118,9 @@ async function getModel(
 		nsSerial,
 		portPath,
 		Session.prototype.getModel,
-		[type, port, rcvIndex],
+		type,
+		port,
+		rcvIndex,
 	);
 	// try {
 	// 	const session = await nsSerial.open(portPath);
@@ -162,37 +164,39 @@ async function getSendingCardPortInfo(
 		nsSerial,
 		portPath,
 		Session.prototype.getModel,
-		[codec.DeviceType.ReceivingCard, portNum],
+		codec.DeviceType.ReceivingCard,
+		portNum,
+		0,
 	);
 	res.brightness = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
 		Session.prototype.getBrightness,
-		[portNum],
+		portNum,
 	);
 	res.brightnessRGBV = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
 		Session.prototype.getBrightnessRGBV,
-		[portNum],
+		portNum,
 	);
 	res.calibrationMode = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
 		Session.prototype.getCalibrationMode,
-		[portNum],
+		portNum,
 	);
 	res.displayMode = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
 		Session.prototype.getDisplayMode,
-		[portNum],
+		portNum,
 	);
 	res.gammaValue = await callNovastarSessionFunc(
 		nsSerial,
 		portPath,
 		Session.prototype.getGammaValue,
-		[portNum],
+		portNum,
 	);
 	return res;
 }
@@ -226,12 +230,12 @@ async function getNovastarCardData(
 	try {
 		res.DVI = await getDVI(nsSerial, portPath);
 		res.version = await getSendingCardVersion(nsSerial, portPath);
-		res.portsData = await getSendingCardPortsInfo(nsSerial, portPath);
 		res.autobrightness = await callNovastarSessionFunc(
 			nsSerial,
 			portPath,
 			Session.prototype.getAutobrightnessMode,
 		);
+		res.portsData = await getSendingCardPortsInfo(nsSerial, portPath);
 	} catch (e) {
 		res.errorCode = 1;
 		res.errorDescription = String(e);
