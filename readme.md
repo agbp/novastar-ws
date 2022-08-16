@@ -31,19 +31,45 @@ http://127.0.0.1:5000/
 результат :  
 ```JSON
 {
- "Error":false,
- "ErrorDescription":"",
- "SendingCards":
- [{
-  "COM":"COM6",
-  "Version":"4.7.7.0",
-  "DVI":true,
-  "Port1":false,
-  "Port1Model":null,
-  "Port2":true,
-  "Port2Model":"Unknown ReceivingCard (4508h)",
-  "Error":null,"ErrorDescription":null
-  }]
+	"Error":0,
+	"ErrorDescription":"",
+	"SendingCards":
+	[{
+		"errorCode":0,
+		"errorDescription":null,
+		"COM":"COM6",
+		"version":"4.7.7.0",
+		"DVI":false,
+		"autobrightness":false,
+		"portInfo":{
+			"path":"COM6",
+			"manufacturer":"Silicon Laboratories",
+			"serialNumber":"3e6cae33869beb11b2363ee3d922184a",
+			"pnpId":"USB\\VID_10C4&PID_EA60\\3E6CAE33869BEB11B2363EE3D922184A",
+			"locationId":"Port_#0006.Hub_#0001",
+			"vendorId":"10C4",
+			"productId":"EA60"
+		},
+		"portsData":[{
+			"portNumber":1,
+			"errorCode":0,
+			"model":"Unknown ReceivingCard (4508h)",
+			"brightness":255,
+			"brightnessRGBV":{
+				"overall":255,
+				"red":255,
+				"green":255,
+				"blue":255,
+				"vRed":255
+			},
+			"calibrationMode":{
+				"isOn":false,
+				"type":0
+			},
+			"displayMode":0,
+			"gammaValue":2.8
+		}]
+	}]
 }  
 ```
 запрос с параметром вернет краткие данные по устройству, подключенному к соответствующему порту, например :  
