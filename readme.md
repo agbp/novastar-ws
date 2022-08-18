@@ -93,7 +93,7 @@ http://127.0.0.1:5000/?port=COM6
 ```
 ## <a name="Repository"></a>Адрес репозитория
 * https://github.com/agbp/novastar-ws
-* использует библиотеку https://github.com/sarakusha/novastar последней стабильной на данный момент версии : `1.0.5`
+* использует библиотеку https://github.com/sarakusha/novastar последней стабильной (на момент создания) версии : `1.0.5`
 
 ## <a name="Build"></a>Сборка
 Важно !
