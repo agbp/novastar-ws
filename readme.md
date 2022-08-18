@@ -21,7 +21,7 @@ novastar-ws-win.exe
 Также в качестве параметра можно указывать : 
 * ключевое слово `silent`, в таком случае не будут выводиться сообщения в консоль запуска.
 * `test` - если сервис не обнаружит подключенных устройств novastar, то выведет тестовую информацию
-* `emulatetimeouterror` - при запуске сервис эмулирует ошибку `Unhandled exception`, которая возникает при таймауте в `node_modules\@novastar\codec\build\main\lib\Connection.js` : `class Connection`, `method wait`
+* `emulateTimeoutError` - при запуске сервис эмулирует ошибку `Unhandled exception`, которая возникает при таймауте в `node_modules\@novastar\codec\build\main\lib\Connection.js` : `class Connection`, `method wait`
 #### Запуск исходника на хосте с установленной NodeJS
 ```Bash
 node ./dist/index.json port=3000
@@ -92,7 +92,8 @@ http://127.0.0.1:5000/?port=COM6
 }
 ```
 ## <a name="Repository"></a>Адрес репозитория
-https://github.com/agbp/novastar-ws
+* https://github.com/agbp/novastar-ws
+* использует библиотеку https://github.com/sarakusha/novastar последней стабильной на данный момент версии : `1.0.5`
 
 ## <a name="Build"></a>Сборка
 Важно !
