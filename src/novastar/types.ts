@@ -7,14 +7,17 @@ import {
 import SerialPort, { OpenOptions, PortInfo } from 'serialport';
 import { TypedEmitter } from 'tiny-typed-emitter';
 
+export type NovastarCardPortNum = 0 | 1 | 2 | 3;
+export type ErrorCode = 0 | 1 | 2 | 3;
+
 export interface CalibrationMode {
 	isOn: boolean,
 	type: Calibration,
 }
 
 export interface SendingCardPortData {
-	portNumber: 0 | 1 | 2 | 3,
-	errorCode: 0 | 1 | 2 | 3,
+	portNumber: NovastarCardPortNum,
+	errorCode: ErrorCode,
 	model: string | null,
 	brightness: number | null,
 	brightnessRGBV: BrightnessRGBV | null,
@@ -24,7 +27,7 @@ export interface SendingCardPortData {
 }
 
 export interface SendingCardData {
-	errorCode: 0 | 1 | 2 | 3,
+	errorCode: ErrorCode,
 	errorDescription: string | null,
 	COM: string | null,
 	version: string | null,
@@ -34,15 +37,15 @@ export interface SendingCardData {
 	portsData: SendingCardPortData[],
 }
 
-export interface ShortCardData {
-	Error: 0 | 1 | 2 | 3,
+export interface ShortSendingCardData {
+	Error: ErrorCode,
 	DVI: 0 | 1,
 	Port1: 0 | 1,
 	Port2: 0 | 1,
 }
 
-export interface NovastarResult {
-	Error: 0 | 1 | 2 | 3 | null,
+export interface NovastarReqResult {
+	Error: ErrorCode,
 	ErrorDescription: string | null,
 	SendingCards: SendingCardData[],
 }

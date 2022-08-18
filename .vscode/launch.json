@@ -17,8 +17,7 @@
 				"${workspaceFolder}/**/*.js"
 			],
 			"args": [
-				"port:5000",
-				"emulateTimeoutError"
+				"port:5000"
 			]
 		}
 	]

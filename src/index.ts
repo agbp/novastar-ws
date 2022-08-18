@@ -7,10 +7,12 @@ import {
 	setUnhandledErrorMonitoring,
 } from './common/unhandledRejectionHandler';
 import {
-	clearNovastarSessions,
 	defaultErrorResultOnUnhandlederror,
 	getNovastarData,
+	getNovastarShortCardData,
 } from './novastar/novastar';
+import { getTestCardData } from './novastar/novastarCard';
+import { clearNovastarSessions } from './novastar/novastarCommon';
 
 const express = require('express');
 
@@ -29,7 +31,14 @@ app.get('/', async (req: Request, res: Response) => {
 
 	try {
 		setUnhandledErrorMonitoring(onUnhandlederror);
-		const nsRes = await getNovastarData(req.query, appEnv.test());
+		if (req.query && req.query.port && typeof req.query.port === 'string') {
+			const shortRes = getNovastarShortCardData(req.query.port);
+			return res.status(200).json(shortRes);
+		}
+		const nsRes = await getNovastarData();
+		if (nsRes.SendingCards.length <= 0 && appEnv.test()) {
+			return res.status(200).json(getTestCardData());
+		}
 		return res.status(200).json(nsRes);
 	} catch (e) {
 		return res.status(500).json(e);
