@@ -20,6 +20,8 @@ novastar-ws-win.exe
 
 Также в качестве параметра можно указывать : 
 * ключевое слово `silent`, в таком случае не будут выводиться сообщения в консоль запуска.
+* `test` - если сервис не обнаружит подключенных устройств novastar, то выведет тестовую информацию
+* `emulatetimeouterror` - при запуске сервис эмулирует ошибку `Unhandled exception`, которая возникает при таймауте в `node_modules\@novastar\codec\build\main\lib\Connection.js` : `class Connection`, `method wait`
 #### Запуск исходника на хосте с установленной NodeJS
 ```Bash
 node ./dist/index.json port=3000
