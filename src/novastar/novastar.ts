@@ -31,7 +31,17 @@ export async function getNovastarData(
 	try {
 		const novastarCardsList: PortInfo[] = await nsSerial.findSendingCards();
 
-		if (novastarCardsList.length <= 0) {
+		if (novastarCardsList.length > 0) {
+			novastarRes.Error = 0;
+			novastarRes.ErrorDescription = '';
+			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
+				async (nsCard: PortInfo): Promise<SendingCardData> => {
+					const localRes: SendingCardData = await getNovastarCardData(nsSerial, nsCard.path);
+					localRes.portInfo = nsCard;
+					return localRes;
+				},
+			));
+		} else {
 			novastarRes.Error = 1;
 			clog('no novastar cards detected');
 
@@ -44,16 +54,6 @@ export async function getNovastarData(
 				console.log(rejTest);
 			}
 			novastarRes.ErrorDescription = 'no novastar cards detected';
-		} else {
-			novastarRes.Error = 0;
-			novastarRes.ErrorDescription = '';
-			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
-				async (nsCard: PortInfo): Promise<SendingCardData> => {
-					const localRes: SendingCardData = await getNovastarCardData(nsSerial, nsCard.path);
-					localRes.portInfo = nsCard;
-					return localRes;
-				},
-			));
 		}
 	} catch (e) {
 		novastarRes.Error = 3;
@@ -65,13 +65,13 @@ export async function getNovastarData(
 }
 
 export async function getNovastarShortCardData(serialPort: string) {
-	const novastarFullRes = await getNovastarData();
 	const shortRes: ShortSendingCardData = {
 		Error: 1,
 		DVI: 0,
 		Port1: 0,
 		Port2: 0,
 	};
+	const novastarFullRes = await getNovastarData();
 	if (novastarFullRes.SendingCards.length > 0) {
 		const cardData: SendingCardData | undefined = novastarFullRes.SendingCards.find(
 			(el: SendingCardData) => el.COM === serialPort,

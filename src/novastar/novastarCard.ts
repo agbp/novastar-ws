@@ -30,7 +30,7 @@ export async function getNovastarCardData(
 	nsSerial: SerialBinding,
 	serialPortPath: string,
 ): Promise<SendingCardData> {
-	const res: SendingCardData = emptyCardData();
+	const res: SendingCardData = emptyCardData(serialPortPath);
 	try {
 		const session = await nsSerial.open(serialPortPath);
 		res.DVI = await callNovastarSessionFunc(
