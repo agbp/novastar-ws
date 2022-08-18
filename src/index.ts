@@ -32,7 +32,7 @@ app.get('/', async (req: Request, res: Response) => {
 	try {
 		setUnhandledErrorMonitoring(onUnhandlederror);
 		if (req.query && req.query.port && typeof req.query.port === 'string') {
-			const shortRes = getNovastarShortCardData(req.query.port);
+			const shortRes = await getNovastarShortCardData(req.query.port);
 			return res.status(200).json(shortRes);
 		}
 		const nsRes = await getNovastarData();
