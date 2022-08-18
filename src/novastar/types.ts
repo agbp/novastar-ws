@@ -47,13 +47,6 @@ export interface NovastarResult {
 	SendingCards: SendingCardData[],
 }
 
-export interface TimeOutErrorInterface {
-	error: boolean,
-	errorDescription: string,
-	promise: Promise<any> | null,
-	reason: any,
-}
-
 interface SerialBindingEvents {
 	open(path: string): void;
 	close(path: string): void;
