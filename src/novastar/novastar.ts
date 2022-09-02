@@ -6,7 +6,7 @@ import { PortInfo } from 'serialport';
 import appEnv from '../common/env';
 import clog from '../common/log';
 import { getNovastarCardData } from './novastarCard';
-import { callNovastarSessionFunc, clearNovastarSessions } from './novastarCommon';
+import { callNovastarSessionFunc, clearNovastarSessions, novastarSerial } from './novastarCommon';
 import {
 	NovastarReqResult,
 	SendingCardData,
@@ -14,9 +14,9 @@ import {
 	ShortSendingCardData,
 } from './types';
 
-const serial = require('@novastar/serial');
+// const serial = require('@novastar/serial');
 
-export const novastarSerial: SerialBinding = serial.default;
+// export const novastarSerial: SerialBinding = serial.default;
 
 export async function getNovastarData(
 	nsSerial: SerialBinding = novastarSerial,

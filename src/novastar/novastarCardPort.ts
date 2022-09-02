@@ -3,8 +3,9 @@ import {
 	Session,
 } from '@novastar/codec';
 import SerialPort from 'serialport';
-import { callNovastarSessionFunc } from './novastarCommon';
-import { NovastarCardPortNum, SendingCardPortData } from './types';
+import clog from '../common/log';
+import { callNovastarSessionFunc, clearNovastarSessions, novastarSerial } from './novastarCommon';
+import { NovastarCardPortNum, SendingCardPortData, SerialBinding } from './types';
 
 function emptyPortData(portNum: NovastarCardPortNum): SendingCardPortData {
 	return {
@@ -19,7 +20,7 @@ function emptyPortData(portNum: NovastarCardPortNum): SendingCardPortData {
 	};
 }
 
-export async function getSendingCardPortInfo(
+async function getSendingCardPortInfo(
 	session: Session<SerialPort>,
 	portNum: NovastarCardPortNum,
 ): Promise<SendingCardPortData | null> {
@@ -72,5 +73,23 @@ export async function getSendingCardPortsInfo(
 		);
 		if (portData) res.push(portData);
 	}
+	return res;
+}
+
+export async function setBrightness(
+	serialPortPath: string,
+	portNum: NovastarCardPortNum,
+	brightnessValue: number,
+	nsSerial: SerialBinding = novastarSerial,
+) {
+	const session = await nsSerial.open(serialPortPath);
+	const res = await callNovastarSessionFunc(
+		session,
+		Session.prototype.setBrightness,
+		brightnessValue,
+		portNum,
+	);
+	clog('res = ', res);
+	clearNovastarSessions();
 	return res;
 }
