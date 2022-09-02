@@ -13,8 +13,11 @@ import {
 } from './novastar/novastar';
 import { getTestCardData } from './novastar/novastarCard';
 import { clearNovastarSessions } from './novastar/novastarCommon';
+import { testEdge } from './novastar/sdk';
 
 const express = require('express');
+
+testEdge();
 
 setUnhandledErrorHandler();
 const app = express();
@@ -31,9 +34,15 @@ app.get('/', async (req: Request, res: Response) => {
 
 	try {
 		setUnhandledErrorMonitoring(onUnhandlederror);
-		if (req.query && req.query.port && typeof req.query.port === 'string') {
-			const shortRes = await getNovastarShortCardData(req.query.port);
-			return res.status(200).json(shortRes);
+		if (req.query) {
+			if (req.query.port && typeof req.query.port === 'string') {
+				const shortRes = await getNovastarShortCardData(req.query.port);
+				return res.status(200).json(shortRes);
+			}
+			if (req.query.setBrightness) {
+				clog('setBrightness');
+				res.status(200).json('setBrightness request');
+			}
 		}
 		const nsRes = await getNovastarData();
 		if (nsRes.SendingCards.length <= 0 && appEnv.test()) {
