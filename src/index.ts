@@ -45,7 +45,9 @@ app.get('/', async (req: Request, res: Response) => {
 							screenPort,
 							Number(req.query.setBrightness),
 						);
-						return res.status(200).json(` screenPort ${screenPort} setBrightness request`);
+						return localRes
+							? res.status(200).json('success')
+							: res.status(500).json('fault');
 					}
 				}
 				const shortRes = await getNovastarShortCardData(req.query.port);

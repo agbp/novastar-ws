@@ -91,5 +91,5 @@ export async function setBrightness(
 	);
 	clog('res = ', res);
 	clearNovastarSessions();
-	return res;
+	return res === brightnessValue;
 }
