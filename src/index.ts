@@ -14,7 +14,7 @@ import {
 	openSession,
 } from './novastar/novastar';
 import { setAutoBrightness } from './novastar/novastarCard';
-import { setBrightness } from './novastar/novastarCardPort';
+import { setAllPortsBrightness, setBrightness } from './novastar/novastarCardPort';
 import { clearNovastarSessions } from './novastar/novastarCommon';
 import { NovastarCardPortNum, NovastarSession, testCardData } from './novastar/types';
 
@@ -40,6 +40,17 @@ app.get('/', async (req: Request, res: Response) => {
 				if (req.query.screenPort
 					&& typeof req.query.screenPort === 'string'
 				) {
+					if (req.query.screenPort.toLowerCase() === 'all') {
+						const nsSession: NovastarSession = await openSession(req.query.port);
+						const localRes = await setAllPortsBrightness(
+							nsSession,
+							Number(req.query.setBrightness),
+						);
+						closeSession(nsSession);
+						return localRes
+							? res.status(200).json('success')
+							: res.status(500).json('fault');
+					}
 					const screenPort = Number(req.query.screenPort) as NovastarCardPortNum;
 					if (req.query.setBrightness !== undefined) {
 						const nsSession: NovastarSession = await openSession(req.query.port);

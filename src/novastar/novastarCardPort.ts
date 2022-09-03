@@ -4,7 +4,7 @@ import {
 } from '@novastar/codec';
 import { callNovastarSessionFunc } from './novastarCommon';
 import {
-	emptySendingCardPortData,
+	emptyScreenPortData,
 	NovastarCardPortNum,
 	novastarCardPortsAmount,
 	NovastarSession,
@@ -14,8 +14,8 @@ import {
 async function getSendingCardPortInfo(
 	nsSession: NovastarSession,
 	portNum: NovastarCardPortNum,
-): Promise<ScreenPortData | null> {
-	const res: ScreenPortData = { ...emptySendingCardPortData, portNumber: portNum };
+): Promise<ScreenPortData> {
+	const res: ScreenPortData = { ...emptyScreenPortData, portNumber: portNum };
 	res.model = await callNovastarSessionFunc(
 		nsSession,
 		Session.prototype.getModel,
@@ -23,7 +23,8 @@ async function getSendingCardPortInfo(
 		portNum,
 		0,
 	);
-	if (res.model === null) return null;
+	if (res.model === null) return res;
+	res.active = true;
 	res.brightness = await callNovastarSessionFunc(
 		nsSession,
 		Session.prototype.getBrightness,
@@ -62,7 +63,7 @@ export async function getSendingCardPortsInfo(
 			nsSession,
 			portN as NovastarCardPortNum,
 		);
-		if (portData) res.push(portData);
+		res.push(portData);
 	}
 	return res;
 }
@@ -89,9 +90,13 @@ export async function setBrightness(
 export async function setAllPortsBrightness(
 	nsSession: NovastarSession,
 	brightnessValue: number,
-) {
-	for (let portN: NovastarCardPortNum = 0; portN < novastarCardPortsAmount; portN += 1) {
-		// eslint-disable-next-line no-await-in-loop
-		setBrightness(nsSession, portN as NovastarCardPortNum, brightnessValue);
-	}
+): Promise<boolean> {
+	const portsInfo = await (await getSendingCardPortsInfo(nsSession))
+		.filter((portInfo) => portInfo.active);
+	const res = await Promise.all(portsInfo.map((portInfo) => setBrightness(
+		nsSession,
+		portInfo.portNumber,
+		brightnessValue,
+	)));
+	return !res.includes(false);
 }
