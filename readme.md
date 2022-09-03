@@ -3,6 +3,7 @@
 1. [Запуск сервиса](#ServiceStart)
 2. [Запросы к сервису](#RequestsExamples)
 	1. [`GET` запрос без параметров](#commonGet)
+	2. [`GET` запрос c параметром - имя ком порта](#getByComPortName)
 3. [Адрес репозитория](#Repository)
 4. [Сборка](#Build)
 5. [Формирование исполняемых файлов](#Executables)
