@@ -211,5 +211,5 @@ pkg package.json
 * novastar-ws-win.exe
 
 ## <a name="Contacts"></a>Контакты
-Andrey.L.Golovin@gmail.com, +79183929922
+[Andrey.L.Golovin@gmail.com](mailto:Andrey.L.Golovin@gmail.com), +79183929922
 
