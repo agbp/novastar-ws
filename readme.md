@@ -42,46 +42,82 @@ http://127.0.0.1:5000/
 результат :  
 ```JSON
 {
-	"Error":0,
-	"ErrorDescription":"",
-	"SendingCards":
-	[{
-		"errorCode":0,
-		"errorDescription":null,
-		"COM":"COM6",
-		"version":"4.7.7.0",
-		"DVI":false,
-		"autobrightness":false,
-		"portInfo":{
-			"path":"COM6",
-			"manufacturer":"Silicon Laboratories",
-			"serialNumber":"3e6cae33869beb11b2363ee3d922184a",
-			"pnpId":"USB\\VID_10C4&PID_EA60\\3E6CAE33869BEB11B2363EE3D922184A",
-			"locationId":"Port_#0006.Hub_#0001",
-			"vendorId":"10C4",
-			"productId":"EA60"
-		},
-		"portsData":[{
-			"portNumber":1,
+	"error":0,
+	"errorDescription":"",
+	"sendingCards":[
+		{
 			"errorCode":0,
-			"model":"Unknown ReceivingCard (4508h)",
-			"brightness":255,
-			"brightnessRGBV":{
-				"overall":255,
-				"red":255,
-				"green":255,
-				"blue":255,
-				"vRed":255
+			"errorDescription":null,
+			"COM":"COM6",
+			"version":"4.7.7.0",
+			"DVI":false,
+			"autobrightness":false,
+			"portInfo":{
+				"path":"COM6",
+				"manufacturer":"Silicon Laboratories",
+				"serialNumber":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+				"pnpId":"USB\\VID_10C4&PID_EA60\\3E6CAE33869BEB11B2363EE3D922184A","locationId":"Port_#0006.Hub_#0001",
+				"vendorId":"10C4",
+				"productId":"EA60"
 			},
-			"calibrationMode":{
-				"isOn":false,
-				"type":0
-			},
-			"displayMode":0,
-			"gammaValue":2.8
-		}]
-	}]
-}  
+			"portsData":[
+				{
+					"portNumber":0,
+					"active":true,
+					"errorCode":0,
+					"model":"Unknown ReceivingCard (4508h)",
+					"brightness":20,
+					"brightnessRGBV":{
+						"overall":20,
+						"red":255,
+						"green":255,
+						"blue":255,
+						"vRed":255
+					},
+					"calibrationMode":{
+						"isOn":false,
+						"type":0
+					},
+					"displayMode":0,
+					"gammaValue":2.8
+				},
+				{
+					"portNumber":1,
+					"active":false,
+					"errorCode":0,
+					"model":null,
+					"brightness":null,
+					"brightnessRGBV":null,
+					"calibrationMode":null,
+					"displayMode":null,
+					"gammaValue":null
+				},
+				{
+					"portNumber":2,
+					"active":false,
+					"errorCode":0,
+					"model":null,
+					"brightness":null,
+					"brightnessRGBV":null,
+					"calibrationMode":null,
+					"displayMode":null,
+					"gammaValue":null
+				},
+				{
+					"portNumber":3,
+					"active":false,
+					"errorCode":0,
+					"model":null,
+					"brightness":null,
+					"brightnessRGBV":null,
+					"calibrationMode":null,
+					"displayMode":null,
+					"gammaValue":null
+				},
+			]
+		}
+	]
+}
 ```
 ### <a name="getByComPortName"></a>Запрос данных карты, по имени COM порта
 запрос с параметром вернет краткие данные по устройству, подключенному к соответствующему порту, например :  
