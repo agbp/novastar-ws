@@ -9,14 +9,22 @@ import { getNovastarCardData } from './novastarCard';
 import { callNovastarSessionFunc, clearNovastarSessions, novastarSerial } from './novastarCommon';
 import {
 	NovastarReqResult,
+	NovastarSession,
 	SendingCardData,
 	SerialBinding,
 	ShortSendingCardData,
 } from './types';
 
-// const serial = require('@novastar/serial');
+export async function openSession(
+	serialPortPath: string,
+	nsSerial: SerialBinding = novastarSerial,
+): Promise<NovastarSession> {
+	return { session: await nsSerial.open(serialPortPath), serialPortPath };
+}
 
-// export const novastarSerial: SerialBinding = serial.default;
+export function closeSession(nsSession: NovastarSession): boolean {
+	return nsSession.session.close();
+}
 
 export async function getNovastarData(
 	nsSerial: SerialBinding = novastarSerial,
@@ -36,8 +44,10 @@ export async function getNovastarData(
 			novastarRes.ErrorDescription = '';
 			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: PortInfo): Promise<SendingCardData> => {
-					const localRes: SendingCardData = await getNovastarCardData(nsSerial, nsCard.path);
+					const nsSession = await openSession(nsCard.path);
+					const localRes: SendingCardData = await getNovastarCardData(nsSession);
 					localRes.portInfo = nsCard;
+					closeSession(nsSession);
 					return localRes;
 				},
 			));
@@ -46,12 +56,14 @@ export async function getNovastarData(
 			clog('no novastar cards detected');
 
 			if (emulateTimeoutError) {
+				const nsSession = await openSession('COM1');
 				const rejTest = await callNovastarSessionFunc(
-					await nsSerial.open('COM1'),
+					nsSession,
 					Session.prototype.hasDVISignalIn,
 				);
 				// eslint-disable-next-line no-console
 				console.log(rejTest);
+				closeSession(nsSession);
 			}
 			novastarRes.ErrorDescription = 'no novastar cards detected';
 		}

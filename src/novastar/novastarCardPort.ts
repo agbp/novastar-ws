@@ -2,31 +2,22 @@ import {
 	DeviceType,
 	Session,
 } from '@novastar/codec';
-import SerialPort from 'serialport';
-import clog from '../common/log';
-import { callNovastarSessionFunc, clearNovastarSessions, novastarSerial } from './novastarCommon';
-import { NovastarCardPortNum, SendingCardPortData, SerialBinding } from './types';
-
-function emptyPortData(portNum: NovastarCardPortNum): SendingCardPortData {
-	return {
-		portNumber: portNum,
-		errorCode: 0,
-		model: null,
-		brightness: null,
-		brightnessRGBV: null,
-		calibrationMode: null,
-		displayMode: null,
-		gammaValue: null,
-	};
-}
+import { callNovastarSessionFunc } from './novastarCommon';
+import {
+	emptySendingCardPortData,
+	NovastarCardPortNum,
+	novastarCardPortsAmount,
+	NovastarSession,
+	SendingCardPortData,
+} from './types';
 
 async function getSendingCardPortInfo(
-	session: Session<SerialPort>,
+	nsSession: NovastarSession,
 	portNum: NovastarCardPortNum,
 ): Promise<SendingCardPortData | null> {
-	const res: SendingCardPortData = emptyPortData(portNum);
+	const res: SendingCardPortData = { ...emptySendingCardPortData, portNumber: portNum };
 	res.model = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.getModel,
 		DeviceType.ReceivingCard,
 		portNum,
@@ -34,27 +25,27 @@ async function getSendingCardPortInfo(
 	);
 	if (res.model === null) return null;
 	res.brightness = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.getBrightness,
 		portNum,
 	);
 	res.brightnessRGBV = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.getBrightnessRGBV,
 		portNum,
 	);
 	res.calibrationMode = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.getCalibrationMode,
 		portNum,
 	);
 	res.displayMode = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.getDisplayMode,
 		portNum,
 	);
 	res.gammaValue = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.getGammaValue,
 		portNum,
 	);
@@ -62,13 +53,13 @@ async function getSendingCardPortInfo(
 }
 
 export async function getSendingCardPortsInfo(
-	session: Session<SerialPort>,
+	nsSession: NovastarSession,
 ): Promise<SendingCardPortData[]> {
 	const res: SendingCardPortData[] = [];
-	for (let portN: NovastarCardPortNum = 0; portN <= 3; portN += 1) {
+	for (let portN: NovastarCardPortNum = 0; portN < novastarCardPortsAmount; portN += 1) {
 		// eslint-disable-next-line no-await-in-loop
 		const portData = await getSendingCardPortInfo(
-			session,
+			nsSession,
 			portN as NovastarCardPortNum,
 		);
 		if (portData) res.push(portData);
@@ -77,19 +68,25 @@ export async function getSendingCardPortsInfo(
 }
 
 export async function setBrightness(
-	serialPortPath: string,
+	nsSession: NovastarSession,
 	portNum: NovastarCardPortNum,
 	brightnessValue: number,
-	nsSerial: SerialBinding = novastarSerial,
 ) {
-	const session = await nsSerial.open(serialPortPath);
 	const res = await callNovastarSessionFunc(
-		session,
+		nsSession,
 		Session.prototype.setBrightness,
 		brightnessValue,
 		portNum,
 	);
-	clog('res = ', res);
-	clearNovastarSessions();
 	return res === brightnessValue;
+}
+
+export async function setAllPortsBrightness(
+	nsSession: NovastarSession,
+	brightnessValue: number,
+) {
+	for (let portN: NovastarCardPortNum = 0; portN < novastarCardPortsAmount; portN += 1) {
+		// eslint-disable-next-line no-await-in-loop
+		setBrightness(nsSession, portN as NovastarCardPortNum, brightnessValue);
+	}
 }

@@ -7,14 +7,16 @@ import {
 	setUnhandledErrorMonitoring,
 } from './common/unhandledRejectionHandler';
 import {
+	closeSession,
 	defaultErrorResultOnUnhandlederror,
 	getNovastarData,
 	getNovastarShortCardData,
+	openSession,
 } from './novastar/novastar';
-import { getTestCardData } from './novastar/novastarCard';
+import { setAutoBrightness } from './novastar/novastarCard';
 import { setBrightness } from './novastar/novastarCardPort';
 import { clearNovastarSessions } from './novastar/novastarCommon';
-import { NovastarCardPortNum } from './novastar/types';
+import { NovastarCardPortNum, NovastarSession, testCardData } from './novastar/types';
 
 const express = require('express');
 
@@ -38,17 +40,33 @@ app.get('/', async (req: Request, res: Response) => {
 				if (req.query.screenPort
 					&& typeof req.query.screenPort === 'string'
 				) {
-					const screenPort: NovastarCardPortNum = Number(req.query.screenPort) as NovastarCardPortNum;
+					const screenPort = Number(req.query.screenPort) as NovastarCardPortNum;
 					if (req.query.setBrightness !== undefined) {
+						const nsSession: NovastarSession = await openSession(req.query.port);
 						const localRes = await setBrightness(
-							req.query.port,
+							nsSession,
 							screenPort,
 							Number(req.query.setBrightness),
 						);
+						closeSession(nsSession);
 						return localRes
 							? res.status(200).json('success')
 							: res.status(500).json('fault');
 					}
+				}
+				if (req.query.setAutoBrightness
+					&& typeof req.query.setAutoBrightness === 'string'
+					&& (req.query.setAutoBrightness === '1' || req.query.setAutoBrightness === '0')
+				) {
+					const nsSession: NovastarSession = await openSession(req.query.port);
+					const localRes = await setAutoBrightness(
+						nsSession,
+						req.query.setAutoBrightness === '1',
+					);
+					closeSession(nsSession);
+					return localRes
+						? res.status(200).json('success')
+						: res.status(500).json('fault');
 				}
 				const shortRes = await getNovastarShortCardData(req.query.port);
 				return res.status(200).json(shortRes);
@@ -56,12 +74,13 @@ app.get('/', async (req: Request, res: Response) => {
 		}
 		const nsRes = await getNovastarData();
 		if (nsRes.SendingCards.length <= 0 && appEnv.test()) {
-			return res.status(200).json(getTestCardData());
+			return res.status(200).json(testCardData);
 		}
 		return res.status(200).json(nsRes);
 	} catch (e) {
 		return res.status(500).json(e);
 	} finally {
+		clearNovastarSessions();
 		dismissUnhandledErrorMonitoring();
 	}
 });

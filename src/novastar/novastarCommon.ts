@@ -2,7 +2,7 @@ import {
 	Session,
 } from '@novastar/codec';
 import SerialPort from 'serialport';
-import { SerialBinding } from './types';
+import { NovastarSession, SerialBinding } from './types';
 
 const serial = require('@novastar/serial');
 
@@ -14,12 +14,12 @@ export function clearNovastarSessions(nsSerial: SerialBinding = novastarSerial) 
 }
 
 export async function callNovastarSessionFunc(
-	session: Session<SerialPort>,
+	nsSession: NovastarSession,
 	func: (...fargs: any) => Promise<any>,
 	...args: any
 ): Promise<any> {
 	try {
-		const res = await func.apply(session, args);
+		const res = await func.apply(nsSession.session, args);
 		return res;
 	} catch (e) {
 		return null;
