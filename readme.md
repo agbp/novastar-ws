@@ -92,10 +92,30 @@ http://127.0.0.1:5000/?port=COM6
 
 ```JSON
 {
- "Error":0,
- "DVI":1,
- "Port1":0,
- "Port2":1
+	"error":0,
+	"DVI":0,
+	"autoBrightness":0,
+	"screenPorts":[{
+			"portNumber":0,
+			"active":1,
+			"brightness":20
+		},
+		{
+			"portNumber":1,
+			"active":0,
+			"brightness":null
+		},
+		{
+			"portNumber":2,
+			"active":0,
+			"brightness":null
+		},
+		{
+			"portNumber":3,
+			"active":0,
+			"brightness":null
+		}
+	]
 }
 ```
 ## <a name="Repository"></a>Адрес репозитория
