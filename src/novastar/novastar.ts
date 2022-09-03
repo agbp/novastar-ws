@@ -32,18 +32,18 @@ export async function getNovastarData(
 	emulateTimeoutError: boolean = appEnv.emulateTimeoutError(),
 ): Promise<NovastarReqResult> {
 	const novastarRes: NovastarReqResult = {
-		Error: 1,
-		ErrorDescription: null,
-		SendingCards: [],
+		error: 1,
+		errorDescription: null,
+		sendingCards: [],
 	};
 
 	try {
 		const novastarCardsList: PortInfo[] = await nsSerial.findSendingCards();
 
 		if (novastarCardsList.length > 0) {
-			novastarRes.Error = 0;
-			novastarRes.ErrorDescription = '';
-			novastarRes.SendingCards = await Promise.all(novastarCardsList.map(
+			novastarRes.error = 0;
+			novastarRes.errorDescription = '';
+			novastarRes.sendingCards = await Promise.all(novastarCardsList.map(
 				async (nsCard: PortInfo): Promise<SendingCardData> => {
 					const nsSession = await openSession(nsCard.path);
 					const localRes: SendingCardData = await getNovastarCardData(nsSession);
@@ -53,7 +53,7 @@ export async function getNovastarData(
 				},
 			));
 		} else {
-			novastarRes.Error = 1;
+			novastarRes.error = 1;
 			clog('no novastar cards detected');
 
 			if (emulateTimeoutError) {
@@ -66,11 +66,11 @@ export async function getNovastarData(
 				console.log(rejTest);
 				closeSession(nsSession);
 			}
-			novastarRes.ErrorDescription = 'no novastar cards detected';
+			novastarRes.errorDescription = 'no novastar cards detected';
 		}
 	} catch (e) {
-		novastarRes.Error = 3;
-		novastarRes.ErrorDescription = String(e);
+		novastarRes.error = 3;
+		novastarRes.errorDescription = String(e);
 	} finally {
 		clearNovastarSessions();
 	}
@@ -79,19 +79,21 @@ export async function getNovastarData(
 
 export async function getNovastarShortCardData(serialPort: string) {
 	const shortRes: ShortSendingCardData = {
-		Error: 1,
+		error: 1,
 		DVI: 0,
+		autoBrightness: null,
 		screenPorts: [],
 	};
 	const novastarFullRes = await getNovastarData();
-	if (novastarFullRes.SendingCards.length > 0) {
-		const cardData: SendingCardData | undefined = novastarFullRes.SendingCards.find(
+	if (novastarFullRes.sendingCards.length > 0) {
+		const cardData: SendingCardData | undefined = novastarFullRes.sendingCards.find(
 			(el: SendingCardData) => el.COM === serialPort,
 		);
 		if (cardData) {
-			shortRes.Error = cardData.errorCode;
+			shortRes.error = cardData.errorCode;
 			shortRes.DVI = cardData.DVI ? 1 : 0;
 			shortRes.screenPorts = cardData.portsData.map((portData): ScreenPortShortData => ({
+				portNumber: portData.portNumber,
 				active: portData.active ? 1 : 0,
 				brightness: portData.brightness,
 			}));
@@ -107,15 +109,16 @@ export function defaultErrorResultOnUnhandlederror(
 	let result: NovastarReqResult | ShortSendingCardData;
 	if (short) {
 		result = {
-			Error: 2,
+			error: 2,
 			DVI: 0,
+			autoBrightness: null,
 			screenPorts: [],
 		};
 	} else {
 		result = {
-			Error: 2,
-			ErrorDescription: errorDescription ?? '',
-			SendingCards: [],
+			error: 2,
+			errorDescription: errorDescription ?? '',
+			sendingCards: [],
 		};
 	}
 	return result;

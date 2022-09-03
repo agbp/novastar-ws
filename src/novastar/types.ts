@@ -45,20 +45,22 @@ export interface SendingCardData {
 }
 
 export interface ScreenPortShortData {
+	portNumber: NovastarCardPortNum,
 	active: 0 | 1,
 	brightness: number | null,
 }
 
 export interface ShortSendingCardData {
-	Error: ErrorCode,
+	error: ErrorCode,
 	DVI: 0 | 1,
+	autoBrightness: 0 | 1 | null,
 	screenPorts: ScreenPortShortData[],
 }
 
 export interface NovastarReqResult {
-	Error: ErrorCode,
-	ErrorDescription: string | null,
-	SendingCards: SendingCardData[],
+	error: ErrorCode,
+	errorDescription: string | null,
+	sendingCards: SendingCardData[],
 }
 
 interface SerialBindingEvents {
@@ -98,22 +100,27 @@ export const emptyCardData: SendingCardData = {
 };
 
 export const testCardShortData: ShortSendingCardData = {
-	Error: 3,
+	error: 3,
 	DVI: 1,
+	autoBrightness: 0,
 	screenPorts: [
 		{
+			portNumber: 0,
 			active: 0,
 			brightness: null,
 		},
 		{
+			portNumber: 1,
 			active: 1,
 			brightness: 10,
 		},
 		{
+			portNumber: 2,
 			active: 0,
 			brightness: null,
 		},
 		{
+			portNumber: 3,
 			active: 0,
 			brightness: null,
 		},
@@ -121,9 +128,9 @@ export const testCardShortData: ShortSendingCardData = {
 };
 
 export const testCardData: NovastarReqResult = {
-	Error: 3,
-	ErrorDescription: 'no novastar cards detected, TEST_MODE is on, test data added',
-	SendingCards: [
+	error: 3,
+	errorDescription: 'no novastar cards detected, TEST_MODE is on, test data added',
+	sendingCards: [
 		{
 			errorCode: 3,
 			errorDescription: 'test',

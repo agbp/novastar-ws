@@ -84,7 +84,7 @@ app.get('/', async (req: Request, res: Response) => {
 			}
 		}
 		const nsRes = await getNovastarData();
-		if (nsRes.SendingCards.length <= 0 && appEnv.test()) {
+		if (nsRes.sendingCards.length <= 0 && appEnv.test()) {
 			return res.status(200).json(testCardData);
 		}
 		return res.status(200).json(nsRes);
