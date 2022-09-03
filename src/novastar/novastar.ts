@@ -92,6 +92,7 @@ export async function getNovastarShortCardData(serialPort: string) {
 		if (cardData) {
 			shortRes.error = cardData.errorCode;
 			shortRes.DVI = cardData.DVI ? 1 : 0;
+			shortRes.autoBrightness = cardData.autobrightness ? 1 : 0;
 			shortRes.screenPorts = cardData.portsData.map((portData): ScreenPortShortData => ({
 				portNumber: portData.portNumber,
 				active: portData.active ? 1 : 0,
