@@ -155,7 +155,16 @@ http://127.0.0.1:5000/?port=COM6
 }
 ```
 ### <a name="setBrightness"></a>Установка яркости порта экрана
-### <a name="setBrightnessToAll"></a>УУстановка яркости всем портам экранов карты, подключенной к COM порту
+Параметры запроса : 
+1. `port` - имя ком порта
+2. `screenPort` - номер одного из четырех портов передающей карты (0-3)
+3. `setBrightness` - значение яркости (0-255)
+
+Например: 
+```Bash
+http://127.0.0.1:5000/?port=COM6&screenPort=1&setBrightness=10
+```
+### <a name="setBrightnessToAll"></a>Установка яркости всем портам экранов карты, подключенной к COM порту
 ### <a name="setAutoBrightness"></a>Установка режима автояркости карты, подключенной к COM порту
 ## <a name="Repository"></a>Адрес репозитория
 * https://github.com/agbp/novastar-ws
