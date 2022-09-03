@@ -21,7 +21,7 @@ export interface CalibrationMode {
 	type: Calibration,
 }
 
-export interface SendingCardPortData {
+export interface ScreenPortData {
 	portNumber: NovastarCardPortNum,
 	errorCode: ErrorCode,
 	model: string | null,
@@ -40,14 +40,18 @@ export interface SendingCardData {
 	DVI: boolean | null,
 	autobrightness: boolean | null,
 	portInfo: PortInfo | null,
-	portsData: SendingCardPortData[],
+	portsData: ScreenPortData[],
+}
+
+export interface ScreenPortShortData {
+	active: 0 | 1,
+	brightness: number | null,
 }
 
 export interface ShortSendingCardData {
 	Error: ErrorCode,
 	DVI: 0 | 1,
-	Port1: 0 | 1,
-	Port2: 0 | 1,
+	screenPorts: ScreenPortShortData[],
 }
 
 export interface NovastarReqResult {
@@ -69,7 +73,7 @@ export declare class SerialBinding extends TypedEmitter<SerialBindingEvents> {
 	getSessions(): Session<SerialPort>[];
 }
 
-export const emptySendingCardPortData: SendingCardPortData = {
+export const emptySendingCardPortData: ScreenPortData = {
 	portNumber: null,
 	errorCode: 0,
 	model: null,
@@ -94,8 +98,24 @@ export const emptyCardData: SendingCardData = {
 export const testCardShortData: ShortSendingCardData = {
 	Error: 3,
 	DVI: 1,
-	Port1: 0,
-	Port2: 1,
+	screenPorts: [
+		{
+			active: 0,
+			brightness: null,
+		},
+		{
+			active: 1,
+			brightness: 10,
+		},
+		{
+			active: 0,
+			brightness: null,
+		},
+		{
+			active: 0,
+			brightness: null,
+		},
+	],
 };
 
 export const testCardData: NovastarReqResult = {

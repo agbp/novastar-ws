@@ -8,14 +8,14 @@ import {
 	NovastarCardPortNum,
 	novastarCardPortsAmount,
 	NovastarSession,
-	SendingCardPortData,
+	ScreenPortData,
 } from './types';
 
 async function getSendingCardPortInfo(
 	nsSession: NovastarSession,
 	portNum: NovastarCardPortNum,
-): Promise<SendingCardPortData | null> {
-	const res: SendingCardPortData = { ...emptySendingCardPortData, portNumber: portNum };
+): Promise<ScreenPortData | null> {
+	const res: ScreenPortData = { ...emptySendingCardPortData, portNumber: portNum };
 	res.model = await callNovastarSessionFunc(
 		nsSession,
 		Session.prototype.getModel,
@@ -54,8 +54,8 @@ async function getSendingCardPortInfo(
 
 export async function getSendingCardPortsInfo(
 	nsSession: NovastarSession,
-): Promise<SendingCardPortData[]> {
-	const res: SendingCardPortData[] = [];
+): Promise<ScreenPortData[]> {
+	const res: ScreenPortData[] = [];
 	for (let portN: NovastarCardPortNum = 0; portN < novastarCardPortsAmount; portN += 1) {
 		// eslint-disable-next-line no-await-in-loop
 		const portData = await getSendingCardPortInfo(
@@ -72,13 +72,18 @@ export async function setBrightness(
 	portNum: NovastarCardPortNum,
 	brightnessValue: number,
 ) {
-	const res = await callNovastarSessionFunc(
+	await callNovastarSessionFunc(
 		nsSession,
 		Session.prototype.setBrightness,
 		brightnessValue,
 		portNum,
 	);
-	return res === brightnessValue;
+	const actualBrightness = await callNovastarSessionFunc(
+		nsSession,
+		Session.prototype.getBrightness,
+		portNum,
+	);
+	return actualBrightness === brightnessValue;
 }
 
 export async function setAllPortsBrightness(

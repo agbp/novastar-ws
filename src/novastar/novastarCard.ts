@@ -38,15 +38,19 @@ export async function getNovastarCardData(
 export async function setAutoBrightness(
 	nsSession: NovastarSession,
 	autoBrightnessMode: boolean = true,
-) {
+): Promise<boolean> {
 	try {
 		await callNovastarSessionFunc(
 			nsSession,
 			Session.prototype.setAutobrightnessMode,
 			autoBrightnessMode,
 		);
+		const actualAutoBrightnessMode = await callNovastarSessionFunc(
+			nsSession,
+			Session.prototype.getAutobrightnessMode,
+		);
+		return actualAutoBrightnessMode === autoBrightnessMode;
 	} catch (e) {
 		return false;
 	}
-	return true;
 }

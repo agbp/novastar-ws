@@ -10,6 +10,7 @@ import { callNovastarSessionFunc, clearNovastarSessions, novastarSerial } from '
 import {
 	NovastarReqResult,
 	NovastarSession,
+	ScreenPortShortData,
 	SendingCardData,
 	SerialBinding,
 	ShortSendingCardData,
@@ -80,8 +81,7 @@ export async function getNovastarShortCardData(serialPort: string) {
 	const shortRes: ShortSendingCardData = {
 		Error: 1,
 		DVI: 0,
-		Port1: 0,
-		Port2: 0,
+		screenPorts: [],
 	};
 	const novastarFullRes = await getNovastarData();
 	if (novastarFullRes.SendingCards.length > 0) {
@@ -91,8 +91,10 @@ export async function getNovastarShortCardData(serialPort: string) {
 		if (cardData) {
 			shortRes.Error = cardData.errorCode;
 			shortRes.DVI = cardData.DVI ? 1 : 0;
-			shortRes.Port1 = cardData.portsData.find((portData) => portData.portNumber === 0) ? 1 : 0;
-			shortRes.Port2 = cardData.portsData.find((portData) => portData.portNumber === 1) ? 1 : 0;
+			shortRes.screenPorts = cardData.portsData.map((portData): ScreenPortShortData => ({
+				active: (portData.errorCode === 0 ? 1 : 0),
+				brightness: portData.brightness,
+			}));
 		}
 	}
 	return shortRes;
@@ -107,8 +109,7 @@ export function defaultErrorResultOnUnhandlederror(
 		result = {
 			Error: 2,
 			DVI: 0,
-			Port1: 0,
-			Port2: 0,
+			screenPorts: [],
 		};
 	} else {
 		result = {
