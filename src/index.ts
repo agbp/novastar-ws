@@ -23,6 +23,15 @@ const express = require('express');
 setUnhandledErrorHandler();
 const app = express();
 app.use(express.json());
+
+app.get('/getInfo', async (req: Request, res: Response) => {
+	if (req.query && req.query.port && typeof req.query.port === 'string') {
+		const shortRes = await getNovastarShortCardData(req.query.port);
+		return res.status(200).json(shortRes);
+	}
+	return res.status(500).json({ error: 1, errorDescription: 'port not specified, try "/getInfo/?port=SomePortNAme"' });
+});
+
 app.get('/', async (req: Request, res: Response) => {
 	const onUnhandlederror = (errorDescription?: string) => {
 		const result = defaultErrorResultOnUnhandlederror(

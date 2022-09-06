@@ -15,19 +15,22 @@ export async function getNovastarCardData(
 ): Promise<SendingCardData> {
 	const res: SendingCardData = { ...emptyCardData, COM: nsSession.serialPortPath ?? null };
 	try {
-		res.DVI = await callNovastarSessionFunc(
-			nsSession,
-			Session.prototype.hasDVISignalIn,
-		);
-		res.version = await callNovastarSessionFunc(
-			nsSession,
-			Session.prototype.getSendingCardVersion,
-		);
-		res.autobrightness = await callNovastarSessionFunc(
-			nsSession,
-			Session.prototype.getAutobrightnessMode,
-		);
-		res.portsData = await getSendingCardPortsInfo(nsSession);
+		const arrayRes = await Promise.all([
+			callNovastarSessionFunc(
+				nsSession,
+				Session.prototype.hasDVISignalIn,
+			),
+			callNovastarSessionFunc(
+				nsSession,
+				Session.prototype.getSendingCardVersion,
+			),
+			callNovastarSessionFunc(
+				nsSession,
+				Session.prototype.getAutobrightnessMode,
+			),
+			getSendingCardPortsInfo(nsSession),
+		]);
+		[res.DVI, res.version, res.autobrightness, res.portsData] = arrayRes;
 	} catch (e) {
 		res.errorCode = 1;
 		res.errorDescription = String(e);
