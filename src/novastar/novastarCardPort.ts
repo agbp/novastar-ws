@@ -42,34 +42,6 @@ async function getSendingCardPortInfo(
 	res.calibrationMode,
 	res.displayMode,
 	res.gammaValue] = arrayRes;
-	// Сколько свойств, попадание в диапазоны, структура объкекта - свойства с заданными именами
-	// проверка на количество вызовов функции
-	// Kent C Dots
-	// res.brightness = await callNovastarSessionFunc(
-	// 	nsSession,
-	// 	Session.prototype.getBrightness,
-	// 	portNum,
-	// );
-	// res.brightnessRGBV = await callNovastarSessionFunc(
-	// 	nsSession,
-	// 	Session.prototype.getBrightnessRGBV,
-	// 	portNum,
-	// );
-	// res.calibrationMode = await callNovastarSessionFunc(
-	// 	nsSession,
-	// 	Session.prototype.getCalibrationMode,
-	// 	portNum,
-	// );
-	// res.displayMode = await callNovastarSessionFunc(
-	// 	nsSession,
-	// 	Session.prototype.getDisplayMode,
-	// 	portNum,
-	// );
-	// res.gammaValue = await callNovastarSessionFunc(
-	// 	nsSession,
-	// 	Session.prototype.getGammaValue,
-	// 	portNum,
-	// );
 	return res;
 }
 
@@ -82,13 +54,6 @@ export async function getSendingCardPortsInfo(
 			nsSession,
 			i as NovastarCardPortNum,
 		)));
-	// for (let portN: NovastarCardPortNum = 0; portN < novastarCardPortsAmount; portN += 1) {
-	// 	// eslint-disable-next-line no-await-in-loop
-	// 	const portData = await getSendingCardPortInfo(
-	// 		nsSession,
-	// 		portN as NovastarCardPortNum,
-	// 	);
-	// 	res.push(portData);
 }
 
 export async function setBrightness(
