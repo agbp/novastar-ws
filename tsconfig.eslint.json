@@ -7,6 +7,7 @@
 		"./*.ts",
 		"./*.js",
 		"test/**/*.ts",
+		"tests/**/*.ts",
 		"./.eslintrc.cjs"
 	]
 }
